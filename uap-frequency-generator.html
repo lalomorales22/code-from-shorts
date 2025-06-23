@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAP Frequency Generator - Reality Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 100, 0, 0.2));
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .warning h3 {
+            color: #ff6b6b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-panel {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .frequency-layer {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .frequency-layer:hover {
+            border-color: rgba(0, 255, 255, 0.6);
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .layer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .layer-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00ffff;
+        }
+        
+        .layer-description {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-group label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #cccccc;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .master-controls {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .master-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+        
+        .start-button {
+            background: linear-gradient(135deg, #00ff00, #00ffff);
+            color: #000;
+        }
+        
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.4);
+        }
+        
+        .stop-button {
+            background: linear-gradient(135deg, #ff0000, #ff6600);
+            color: #fff;
+        }
+        
+        .stop-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+        }
+        
+        .status-display {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .status-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .frequency-display {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #00ffff;
+            margin: 0.5rem 0;
+        }
+        
+        .info-panel {
+            background: rgba(255, 0, 255, 0.05);
+            border: 1px solid rgba(255, 0, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .info-panel h3 {
+            color: #ff00ff;
+            margin-bottom: 1rem;
+        }
+        
+        .info-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-panel li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .info-panel li::before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+            color: #ffff00;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .master-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        .visualizer {
+            height: 100px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00);
+            animation: wave 2s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>UAP FREQUENCY GENERATOR</h1>
+            <p>Consciousness-Field Interface Protocol | Based on Leaked Communication Patterns</p>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ EXPERIMENTAL TECHNOLOGY WARNING ⚠️</h3>
+            <p>This system generates complex frequency patterns. Use at low volume. Protect your hearing. 
+            Results not guaranteed. For research purposes only.</p>
+        </div>
+        
+        <div class="control-panel">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #00ffff;">FREQUENCY LAYER CONTROLS</h2>
+            
+            <!-- Schumann Resonance Layer -->
+            <div class="frequency-layer">
+                <div class="layer-header">
+                    <div class="layer-title">🌍 SCHUMANN RESONANCE (7.83 Hz)</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="schumann-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="layer-description">
+                    Earth's natural electromagnetic heartbeat - via 100 Hz modulated carrier
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Carrier Frequency (Hz)</label>
+                        <input type="range" class="slider" id="schumann-carrier" min="90" max="110" value="100" step="0.1">
+                        <span id="schumann-carrier-value">100.0 Hz</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Modulation Depth</label>
+                        <input type="range" class="slider" id="schumann-depth" min="0" max="100" value="50">
+                        <span id="schumann-depth-value">50%</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <input type="range" class="slider" id="schumann-volume" min="0" max="100" value="30">
+                        <span id="schumann-volume-value">30%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Spiritual Frequency Layer -->
+            <div class="frequency-layer">
+                <div class="layer-header">
+                    <div class="layer-title">🧘 CONSCIOUSNESS HARMONIC (528 Hz)</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="spiritual-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="layer-description">
+                    "Love frequency" - DNA repair and consciousness activation resonance
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Frequency (Hz)</label>
+                        <input type="range" class="slider" id="spiritual-freq" min="520" max="536" value="528" step="0.1">
+                        <span id="spiritual-freq-value">528.0 Hz</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Harmonic Distortion</label>
+                        <input type="range" class="slider" id="spiritual-distortion" min="0" max="20" value="5">
+                        <span id="spiritual-distortion-value">5%</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <input type="range" class="slider" id="spiritual-volume" min="0" max="100" value="25">
+                        <span id="spiritual-volume-value">25%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ultrasonic Layer -->
+            <div class="frequency-layer">
+                <div class="layer-header">
+                    <div class="layer-title">🛸 ULTRASONIC PING (17 kHz)</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ultrasonic-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="layer-description">
+                    Beyond human hearing - NHI tech-detectable signature pulse
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Frequency (kHz)</label>
+                        <input type="range" class="slider" id="ultrasonic-freq" min="16" max="18" value="17" step="0.01">
+                        <span id="ultrasonic-freq-value">17.00 kHz</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Pulse Rate (per min)</label>
+                        <input type="range" class="slider" id="ultrasonic-rate" min="10" max="60" value="30">
+                        <span id="ultrasonic-rate-value">30/min</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <input type="range" class="slider" id="ultrasonic-volume" min="0" max="100" value="15">
+                        <span id="ultrasonic-volume-value">15%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Organic Chirps Layer -->
+            <div class="frequency-layer">
+                <div class="layer-header">
+                    <div class="layer-title">🦅 ORGANIC CHIRPS (2.5 kHz)</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="organic-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="layer-description">
+                    Creature-like calls every 10 seconds - unique biological signature
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Base Frequency (Hz)</label>
+                        <input type="range" class="slider" id="organic-freq" min="2000" max="3000" value="2500">
+                        <span id="organic-freq-value">2500 Hz</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Interval (seconds)</label>
+                        <input type="range" class="slider" id="organic-interval" min="5" max="15" value="10" step="0.5">
+                        <span id="organic-interval-value">10.0 sec</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <input type="range" class="slider" id="organic-volume" min="0" max="100" value="35">
+                        <span id="organic-volume-value">35%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ambient Pad Layer -->
+            <div class="frequency-layer">
+                <div class="layer-header">
+                    <div class="layer-title">🎵 AMBIENT PAD (432 Hz)</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ambient-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="layer-description">
+                    Natural tuning frequency - smooth masking layer for coherence
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Frequency (Hz)</label>
+                        <input type="range" class="slider" id="ambient-freq" min="425" max="440" value="432" step="0.1">
+                        <span id="ambient-freq-value">432.0 Hz</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Filter Cutoff</label>
+                        <input type="range" class="slider" id="ambient-filter" min="200" max="2000" value="800">
+                        <span id="ambient-filter-value">800 Hz</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <input type="range" class="slider" id="ambient-volume" min="0" max="100" value="20">
+                        <span id="ambient-volume-value">20%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Breath Layer -->
+            <div class="frequency-layer">
+                <div class="layer-header">
+                    <div class="layer-title">💨 BREATH LAYER (White Noise)</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="breath-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="layer-description">
+                    Shaped white noise to simulate living, breathing presence
+                </div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Breath Rate (BPM)</label>
+                        <input type="range" class="slider" id="breath-rate" min="8" max="20" value="12">
+                        <span id="breath-rate-value">12 BPM</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Noise Color</label>
+                        <input type="range" class="slider" id="breath-color" min="0" max="100" value="50">
+                        <span id="breath-color-value">50% Pink</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Volume</label>
+                        <input type="range" class="slider" id="breath-volume" min="0" max="100" value="15">
+                        <span id="breath-volume-value">15%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="master-controls">
+            <button class="master-button start-button" id="start-system">🚀 ACTIVATE SIGNAL</button>
+            <button class="master-button stop-button" id="stop-system">🛑 DEACTIVATE</button>
+        </div>
+        
+        <div class="status-display">
+            <div class="status-text" id="status">SYSTEM OFFLINE</div>
+            <div class="visualizer">
+                <div class="wave" id="wave-display"></div>
+            </div>
+            <div class="frequency-display" id="active-frequencies">
+                No active frequencies
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📡 CONSCIOUSNESS-FIELD INTERFACE PROTOCOL</h3>
+            <ul>
+                <li>Multi-dimensional frequency synthesis for consciousness-technology interface</li>
+                <li>Based on documented electromagnetic signatures and resonance patterns</li>
+                <li>Combines planetary, biological, and technological frequency domains</li>
+                <li>Low volume operation - information pattern matters, not amplitude</li>
+                <li>Use in quiet environment for optimal field coherence</li>
+                <li>Results may vary based on local electromagnetic conditions</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Audio Context and System
+        let audioContext = null;
+        let isSystemActive = false;
+        let generators = {};
+        let masterGain = null;
+        
+        // Frequency Generators
+        class FrequencyGenerator {
+            constructor(type, frequency, volume = 0.1) {
+                this.type = type;
+                this.frequency = frequency;
+                this.volume = volume;
+                this.oscillator = null;
+                this.gainNode = null;
+                this.filterNode = null;
+                this.active = false;
+            }
+            
+            start() {
+                if (!audioContext || this.active) return;
+                
+                this.gainNode = audioContext.createGain();
+                this.gainNode.gain.setValueAtTime(this.volume, audioContext.currentTime);
+                
+                if (this.type === 'noise') {
+                    this.createNoiseSource();
+                } else {
+                    this.oscillator = audioContext.createOscillator();
+                    this.oscillator.frequency.setValueAtTime(this.frequency, audioContext.currentTime);
+                    this.oscillator.type = this.type;
+                    this.oscillator.connect(this.gainNode);
+                    this.oscillator.start();
+                }
+                
+                this.gainNode.connect(masterGain);
+                this.active = true;
+            }
+            
+            stop() {
+                if (!this.active) return;
+                
+                if (this.oscillator) {
+                    this.oscillator.stop();
+                    this.oscillator.disconnect();
+                    this.oscillator = null;
+                }
+                
+                if (this.gainNode) {
+                    this.gainNode.disconnect();
+                    this.gainNode = null;
+                }
+                
+                this.active = false;
+            }
+            
+            createNoiseSource() {
+                const bufferSize = audioContext.sampleRate * 2;
+                const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                
+                const whiteNoise = audioContext.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+                whiteNoise.loop = true;
+                whiteNoise.connect(this.gainNode);
+                whiteNoise.start();
+                
+                this.oscillator = whiteNoise; // Store for cleanup
+            }
+            
+            setFrequency(freq) {
+                this.frequency = freq;
+                if (this.oscillator && this.oscillator.frequency) {
+                    this.oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                }
+            }
+            
+            setVolume(vol) {
+                this.volume = vol;
+                if (this.gainNode) {
+                    this.gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
+                }
+            }
+        }
+        
+        // Modulated Generator for Schumann Resonance
+        class ModulatedGenerator extends FrequencyGenerator {
+            constructor(carrierFreq, modulationFreq, depth) {
+                super('sine', carrierFreq);
+                this.modulationFreq = modulationFreq;
+                this.depth = depth;
+                this.modulator = null;
+                this.modulatorGain = null;
+            }
+            
+            start() {
+                if (!audioContext || this.active) return;
+                
+                // Create modulator
+                this.modulator = audioContext.createOscillator();
+                this.modulator.frequency.setValueAtTime(this.modulationFreq, audioContext.currentTime);
+                this.modulator.type = 'sine';
+                
+                this.modulatorGain = audioContext.createGain();
+                this.modulatorGain.gain.setValueAtTime(this.depth, audioContext.currentTime);
+                
+                // Create carrier
+                this.oscillator = audioContext.createOscillator();
+                this.oscillator.frequency.setValueAtTime(this.frequency, audioContext.currentTime);
+                this.oscillator.type = 'sine';
+                
+                // Create gain
+                this.gainNode = audioContext.createGain();
+                this.gainNode.gain.setValueAtTime(this.volume, audioContext.currentTime);
+                
+                // Connect modulation
+                this.modulator.connect(this.modulatorGain);
+                this.modulatorGain.connect(this.oscillator.frequency);
+                
+                // Connect audio path
+                this.oscillator.connect(this.gainNode);
+                this.gainNode.connect(masterGain);
+                
+                // Start oscillators
+                this.modulator.start();
+                this.oscillator.start();
+                
+                this.active = true;
+            }
+            
+            stop() {
+                if (!this.active) return;
+                
+                if (this.modulator) {
+                    this.modulator.stop();
+                    this.modulator.disconnect();
+                    this.modulator = null;
+                }
+                
+                super.stop();
+            }
+            
+            setModulationDepth(depth) {
+                this.depth = depth;
+                if (this.modulatorGain) {
+                    this.modulatorGain.gain.setValueAtTime(depth, audioContext.currentTime);
+                }
+            }
+        }
+        
+        // Pulse Generator for Ultrasonic and Organic layers
+        class PulseGenerator {
+            constructor(frequency, pulseRate, duration = 0.1) {
+                this.frequency = frequency;
+                this.pulseRate = pulseRate; // pulses per minute
+                this.duration = duration; // pulse duration in seconds
+                this.volume = 0.1;
+                this.active = false;
+                this.intervalId = null;
+            }
+            
+            start() {
+                if (!audioContext || this.active) return;
+                
+                this.active = true;
+                const intervalMs = (60 / this.pulseRate) * 1000;
+                
+                this.intervalId = setInterval(() => {
+                    this.generatePulse();
+                }, intervalMs);
+            }
+            
+            stop() {
+                if (!this.active) return;
+                
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                }
+                
+                this.active = false;
+            }
+            
+            generatePulse() {
+                if (!audioContext) return;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.frequency.setValueAtTime(this.frequency, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                // Envelope
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(this.volume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + this.duration);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(masterGain);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + this.duration);
+            }
+            
+            setFrequency(freq) {
+                this.frequency = freq;
+            }
+            
+            setPulseRate(rate) {
+                this.pulseRate = rate;
+                if (this.active) {
+                    this.stop();
+                    this.start();
+                }
+            }
+            
+            setVolume(vol) {
+                this.volume = vol;
+            }
+        }
+        
+        // Initialize Audio System
+        function initializeAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioContext.createGain();
+                masterGain.gain.setValueAtTime(0.3, audioContext.currentTime); // Master volume
+                masterGain.connect(audioContext.destination);
+            }
+        }
+        
+        // Create Generators
+        function createGenerators() {
+            generators = {
+                schumann: new ModulatedGenerator(100, 7.83, 0.5),
+                spiritual: new FrequencyGenerator('sine', 528, 0.25),
+                ultrasonic: new PulseGenerator(17000, 30, 0.05),
+                organic: new PulseGenerator(2500, 6, 0.2), // 6 per minute = every 10 seconds
+                ambient: new FrequencyGenerator('triangle', 432, 0.2),
+                breath: new FrequencyGenerator('noise', 0, 0.15)
+            };
+        }
+        
+        // Start System
+        function startSystem() {
+            if (isSystemActive) return;
+            
+            initializeAudio();
+            createGenerators();
+            
+            // Start active generators
+            Object.keys(generators).forEach(key => {
+                const toggle = document.getElementById(`${key === 'organic' ? 'organic' : key === 'ultrasonic' ? 'ultrasonic' : key === 'spiritual' ? 'spiritual' : key === 'ambient' ? 'ambient' : key === 'breath' ? 'breath' : 'schumann'}-toggle`);
+                if (toggle && toggle.checked) {
+                    generators[key].start();
+                }
+            });
+            
+            isSystemActive = true;
+            updateStatus();
+            startVisualizer();
+        }
+        
+        // Stop System
+        function stopSystem() {
+            if (!isSystemActive) return;
+            
+            Object.values(generators).forEach(gen => gen.stop());
+            isSystemActive = false;
+            updateStatus();
+            stopVisualizer();
+        }
+        
+        // Update Status Display
+        function updateStatus() {
+            const statusEl = document.getElementById('status');
+            const freqEl = document.getElementById('active-frequencies');
+            
+            if (isSystemActive) {
+                statusEl.textContent = '🟢 CONSCIOUSNESS-FIELD INTERFACE ACTIVE';
+                statusEl.style.color = '#00ff00';
+                
+                const activeFreqs = [];
+                if (generators.schumann && generators.schumann.active) activeFreqs.push('7.83Hz Schumann');
+                if (generators.spiritual && generators.spiritual.active) activeFreqs.push('528Hz Consciousness');
+                if (generators.ultrasonic && generators.ultrasonic.active) activeFreqs.push('17kHz Ultrasonic');
+                if (generators.organic && generators.organic.active) activeFreqs.push('2.5kHz Organic');
+                if (generators.ambient && generators.ambient.active) activeFreqs.push('432Hz Ambient');
+                if (generators.breath && generators.breath.active) activeFreqs.push('Breath Layer');
+                
+                freqEl.textContent = activeFreqs.length ? `Active: ${activeFreqs.join(' | ')}` : 'No active frequencies';
+            } else {
+                statusEl.textContent = '🔴 SYSTEM OFFLINE';
+                statusEl.style.color = '#ff0000';
+                freqEl.textContent = 'No active frequencies';
+            }
+        }
+        
+        // Visualizer
+        let visualizerActive = false;
+        
+        function startVisualizer() {
+            visualizerActive = true;
+            animateWave();
+        }
+        
+        function stopVisualizer() {
+            visualizerActive = false;
+        }
+        
+        function animateWave() {
+            if (!visualizerActive) return;
+            
+            const wave = document.getElementById('wave-display');
+            if (wave) {
+                wave.style.animationDuration = isSystemActive ? '2s' : '0s';
+            }
+            
+            if (visualizerActive) {
+                requestAnimationFrame(animateWave);
+            }
+        }
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Master Controls
+            document.getElementById('start-system').addEventListener('click', startSystem);
+            document.getElementById('stop-system').addEventListener('click', stopSystem);
+            
+            // Slider Updates
+            function setupSliderUpdates() {
+                // Schumann controls
+                const schumannCarrier = document.getElementById('schumann-carrier');
+                const schumannDepth = document.getElementById('schumann-depth');
+                const schumannVolume = document.getElementById('schumann-volume');
+                
+                schumannCarrier.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    document.getElementById('schumann-carrier-value').textContent = `${value.toFixed(1)} Hz`;
+                    if (generators.schumann) generators.schumann.setFrequency(value);
+                });
+                
+                schumannDepth.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('schumann-depth-value').textContent = `${value}%`;
+                    if (generators.schumann) generators.schumann.setModulationDepth(value / 100);
+                });
+                
+                schumannVolume.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('schumann-volume-value').textContent = `${value}%`;
+                    if (generators.schumann) generators.schumann.setVolume(value / 100);
+                });
+                
+                // Spiritual controls
+                const spiritualFreq = document.getElementById('spiritual-freq');
+                const spiritualVolume = document.getElementById('spiritual-volume');
+                
+                spiritualFreq.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    document.getElementById('spiritual-freq-value').textContent = `${value.toFixed(1)} Hz`;
+                    if (generators.spiritual) generators.spiritual.setFrequency(value);
+                });
+                
+                spiritualVolume.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('spiritual-volume-value').textContent = `${value}%`;
+                    if (generators.spiritual) generators.spiritual.setVolume(value / 100);
+                });
+                
+                // Ultrasonic controls
+                const ultrasonicFreq = document.getElementById('ultrasonic-freq');
+                const ultrasonicRate = document.getElementById('ultrasonic-rate');
+                const ultrasonicVolume = document.getElementById('ultrasonic-volume');
+                
+                ultrasonicFreq.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    document.getElementById('ultrasonic-freq-value').textContent = `${value.toFixed(2)} kHz`;
+                    if (generators.ultrasonic) generators.ultrasonic.setFrequency(value * 1000);
+                });
+                
+                ultrasonicRate.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('ultrasonic-rate-value').textContent = `${value}/min`;
+                    if (generators.ultrasonic) generators.ultrasonic.setPulseRate(value);
+                });
+                
+                ultrasonicVolume.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('ultrasonic-volume-value').textContent = `${value}%`;
+                    if (generators.ultrasonic) generators.ultrasonic.setVolume(value / 100);
+                });
+                
+                // Organic controls
+                const organicFreq = document.getElementById('organic-freq');
+                const organicInterval = document.getElementById('organic-interval');
+                const organicVolume = document.getElementById('organic-volume');
+                
+                organicFreq.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('organic-freq-value').textContent = `${value} Hz`;
+                    if (generators.organic) generators.organic.setFrequency(value);
+                });
+                
+                organicInterval.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    document.getElementById('organic-interval-value').textContent = `${value.toFixed(1)} sec`;
+                    const rate = 60 / value; // Convert interval to pulses per minute
+                    if (generators.organic) generators.organic.setPulseRate(rate);
+                });
+                
+                organicVolume.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('organic-volume-value').textContent = `${value}%`;
+                    if (generators.organic) generators.organic.setVolume(value / 100);
+                });
+                
+                // Ambient controls
+                const ambientFreq = document.getElementById('ambient-freq');
+                const ambientVolume = document.getElementById('ambient-volume');
+                
+                ambientFreq.addEventListener('input', (e) => {
+                    const value = parseFloat(e.target.value);
+                    document.getElementById('ambient-freq-value').textContent = `${value.toFixed(1)} Hz`;
+                    if (generators.ambient) generators.ambient.setFrequency(value);
+                });
+                
+                ambientVolume.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('ambient-volume-value').textContent = `${value}%`;
+                    if (generators.ambient) generators.ambient.setVolume(value / 100);
+                });
+                
+                // Breath controls
+                const breathRate = document.getElementById('breath-rate');
+                const breathVolume = document.getElementById('breath-volume');
+                
+                breathRate.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('breath-rate-value').textContent = `${value} BPM`;
+                    // Breathing modulation would be implemented here
+                });
+                
+                breathVolume.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('breath-volume-value').textContent = `${value}%`;
+                    if (generators.breath) generators.breath.setVolume(value / 100);
+                });
+            }
+            
+            setupSliderUpdates();
+            
+            // Toggle switches
+            function setupToggles() {
+                const toggles = ['schumann', 'spiritual', 'ultrasonic', 'organic', 'ambient', 'breath'];
+                
+                toggles.forEach(name => {
+                    const toggle = document.getElementById(`${name}-toggle`);
+                    if (toggle) {
+                        toggle.addEventListener('change', (e) => {
+                            if (isSystemActive && generators[name]) {
+                                if (e.target.checked) {
+                                    generators[name].start();
+                                } else {
+                                    generators[name].stop();
+                                }
+                                updateStatus();
+                            }
+                        });
+                    }
+                });
+            }
+            
+            setupToggles();
+            
+            // Initial status
+            updateStatus();
+            
+            console.log('🛸 UAP Frequency Generator Initialized');
+            console.log('📡 Consciousness-Field Interface Ready');
+            console.log('⚡ Multi-dimensional frequency synthesis available');
+            console.log('🔬 Use low volume - pattern matters, not amplitude');
+        });
+    </script>
+</body>
+</html>
