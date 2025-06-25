@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Final - Problem Solving Guide</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        console.log('MathJax initial typesetting complete');
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 50%, #0a0a0a 100%);
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff4444;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ff4444;
+            border-bottom: 3px solid #660000;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #ff6666;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+            padding: 10px;
+            background: linear-gradient(90deg, #330000, transparent);
+            border-left: 4px solid #ff4444;
+            text-shadow: 0 0 10px #ff6666;
+        }
+
+        h3 {
+            color: #ffaaaa;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .problem-section {
+            background: rgba(20, 0, 0, 0.3);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #440000;
+            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.1);
+        }
+
+        .steps {
+            background: rgba(40, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .steps ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .steps li {
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #330000;
+            color: #cccccc;
+        }
+
+        .steps li:before {
+            content: "▶ ";
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .formula-box {
+            background: linear-gradient(45deg, #1a0000, #2a0000);
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+        }
+
+        .pitfalls {
+            background: rgba(60, 0, 0, 0.3);
+            border-left: 4px solid #ff0000;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .pitfalls h3 {
+            color: #ff3333;
+            margin-top: 0;
+        }
+
+        .pitfalls ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pitfalls li:before {
+            content: "⚠ ";
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .connections {
+            background: rgba(0, 20, 0, 0.3);
+            border-left: 4px solid #00ff00;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .connections h3 {
+            color: #66ff66;
+            margin-top: 0;
+        }
+
+        .quick-reference {
+            background: rgba(0, 0, 40, 0.3);
+            border: 2px solid #4444ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+        .quick-reference h2 {
+            color: #6666ff;
+            border-left-color: #4444ff;
+            background: linear-gradient(90deg, #000033, transparent);
+        }
+
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .formula-category {
+            background: rgba(0, 0, 30, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333366;
+        }
+
+        .formula-category h4 {
+            color: #8888ff;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* MathJax rendered math styling */
+        mjx-container {
+            color: #00ffaa !important;
+            background: rgba(0, 255, 170, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            margin: 2px;
+            display: inline-block;
+        }
+
+        /* Math in formula boxes */
+        .formula-box mjx-container {
+            color: #00ffff !important;
+            text-shadow: 0 0 15px #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            margin: 5px 2px;
+        }
+
+        /* Math in quick reference */
+        .quick-reference mjx-container {
+            color: #ffff00 !important;
+            text-shadow: 0 0 10px #ffff00;
+            background: rgba(255, 255, 0, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 0, 0.2);
+            margin: 2px 1px;
+        }
+
+        /* Display math (block equations) */
+        mjx-container[display="true"] {
+            background: rgba(0, 255, 255, 0.15);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff4444, transparent);
+            margin: 30px 0;
+        }
+
+        .section-divider {
+            text-align: center;
+            margin: 40px 0;
+            color: #ff4444;
+            font-size: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculus Final - Problem Solving Guide</h1>
+
+        <div class="problem-section">
+            <h2>1. Basic Limits</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Substitute x-value directly first</li>
+                    <li>Check if form is indeterminate</li>
+                    <li>Factor polynomials if needed</li>
+                    <li>Cancel common factors</li>
+                    <li>Re-substitute after simplification</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\lim_{x \to a} f(x) = L$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting to check direct substitution</li>
+                    <li>Not factoring completely</li>
+                    <li>Canceling terms instead of factors</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Foundation for derivatives, continuity, and all advanced calculus concepts.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>2. Limits at Infinity</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Divide by highest degree term</li>
+                    <li>Simplify each fraction separately</li>
+                    <li>Apply limit properties</li>
+                    <li>Evaluate remaining constants</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\lim_{x \to \infty} \frac{P(x)}{Q(x)}$ depends on degree comparison
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Not dividing by highest degree</li>
+                    <li>Forgetting negative infinity cases</li>
+                    <li>Mishandling rational functions</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Essential for horizontal asymptotes, improper integrals, and series convergence.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>3. Basic Derivatives (Power Rule)</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Identify each term separately</li>
+                    <li>Apply power rule: nx^(n-1)</li>
+                    <li>Handle constants (derivative = 0)</li>
+                    <li>Combine all terms</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\frac{d}{dx}[x^n] = nx^{n-1}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting to reduce exponent</li>
+                    <li>Mishandling negative exponents</li>
+                    <li>Dropping constant multipliers</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Building block for all differentiation rules and applications.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>4. Chain Rule</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Identify outer function f(g(x))</li>
+                    <li>Find derivative of outer</li>
+                    <li>Find derivative of inner</li>
+                    <li>Multiply: f'(g(x)) × g'(x)</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting inner derivative</li>
+                    <li>Misidentifying composite structure</li>
+                    <li>Not simplifying final answer</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Critical for implicit differentiation, related rates, and exponential/log functions.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>5. Product Rule</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Identify two functions u and v</li>
+                    <li>Find derivative of first function</li>
+                    <li>Find derivative of second function</li>
+                    <li>Apply: u'v + uv'</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\frac{d}{dx}[uv] = u'v + uv'$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Using chain rule instead</li>
+                    <li>Forgetting one of the terms</li>
+                    <li>Not simplifying final expression</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Essential for optimization problems and complex function differentiation.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>6. Quotient Rule</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Identify numerator (u) and denominator (v)</li>
+                    <li>Find u' and v'</li>
+                    <li>Apply: (u'v - uv')/v²</li>
+                    <li>Simplify if possible</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\frac{d}{dx}\left[\frac{u}{v}\right] = \frac{u'v - uv'}{v^2}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Mixing up order in numerator</li>
+                    <li>Forgetting to square denominator</li>
+                    <li>Not checking for simplification</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Used in rate problems, optimization, and rational function analysis.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>7. Implicit Differentiation</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Differentiate both sides with respect to x</li>
+                    <li>Apply chain rule to y terms</li>
+                    <li>Collect all dy/dx terms</li>
+                    <li>Solve for dy/dx algebraically</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> For $F(x,y) = 0$, solve for $\frac{dy}{dx}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting dy/dx when differentiating y</li>
+                    <li>Not applying chain rule properly</li>
+                    <li>Algebraic manipulation errors</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Foundation for related rates and studying curves not functions.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>8. Related Rates</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Draw diagram and label variables</li>
+                    <li>Identify given rates and find rate</li>
+                    <li>Write equation relating variables</li>
+                    <li>Differentiate implicitly with respect to time</li>
+                    <li>Substitute known values</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Key Insight:</strong> All variables change with respect to time
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Substituting values before differentiating</li>
+                    <li>Misidentifying what's changing</li>
+                    <li>Not drawing helpful diagrams</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Real-world application of chain rule and implicit differentiation.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>9. Linear Approximation</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Find point of tangency (a, f(a))</li>
+                    <li>Calculate f'(a)</li>
+                    <li>Use formula: L(x) = f(a) + f'(a)(x-a)</li>
+                    <li>Substitute x-value for approximation</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $L(x) = f(a) + f'(a)(x - a)$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Using wrong point for tangency</li>
+                    <li>Calculation errors in derivative</li>
+                    <li>Not understanding approximation limits</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Foundation for differentials, Newton's method, and error analysis.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>10. Exponential Functions</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Recognize base: e^x or a^x</li>
+                    <li>Apply appropriate derivative rule</li>
+                    <li>Use chain rule if composite</li>
+                    <li>Simplify using properties of exponentials</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formulas:</strong><br>
+                $\frac{d}{dx}[e^x] = e^x$<br>
+                $\frac{d}{dx}[a^x] = a^x \ln(a)$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting ln(a) for base a ≠ e</li>
+                    <li>Misapplying chain rule</li>
+                    <li>Not using exponential properties</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Critical for growth/decay models, optimization, and integration techniques.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>11. Logarithmic Functions</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Identify base of logarithm</li>
+                    <li>Apply logarithmic derivative rule</li>
+                    <li>Use chain rule for compositions</li>
+                    <li>Simplify using log properties</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formulas:</strong><br>
+                $\frac{d}{dx}[\ln(x)] = \frac{1}{x}$<br>
+                $\frac{d}{dx}[\log_a(x)] = \frac{1}{x \ln(a)}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Confusing natural vs common logs</li>
+                    <li>Forgetting chain rule application</li>
+                    <li>Not using log properties to simplify</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Inverse relationship with exponentials, used in integration and modeling.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>12. Inverse Functions</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Verify function is one-to-one</li>
+                    <li>Switch x and y variables</li>
+                    <li>Solve for y explicitly</li>
+                    <li>Check using composition</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $(f^{-1})'(x) = \frac{1}{f'(f^{-1}(x))}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Not checking one-to-one property</li>
+                    <li>Algebraic errors when solving</li>
+                    <li>Confusing domain and range</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Foundation for inverse trig functions and logarithmic differentiation.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>13. L'Hôpital's Rule</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Verify indeterminate form (0/0 or ∞/∞)</li>
+                    <li>Differentiate numerator and denominator separately</li>
+                    <li>Re-evaluate limit</li>
+                    <li>Repeat if still indeterminate</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\lim_{x \to a} \frac{f(x)}{g(x)} = \lim_{x \to a} \frac{f'(x)}{g'(x)}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Using when form isn't indeterminate</li>
+                    <li>Applying quotient rule instead</li>
+                    <li>Not checking final form</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Extension of limit techniques, crucial for advanced limit problems.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>14. Critical Points and Extrema</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Find f'(x) = 0 or undefined</li>
+                    <li>Test critical points using first derivative</li>
+                    <li>Check endpoints if on closed interval</li>
+                    <li>Classify as max, min, or neither</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Tests:</strong> First derivative test, second derivative test
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting undefined points</li>
+                    <li>Not checking interval endpoints</li>
+                    <li>Misinterpreting derivative tests</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Essential for optimization, curve sketching, and mean value theorem.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>15. Mean Value Theorem</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Verify function is continuous on [a,b]</li>
+                    <li>Verify function is differentiable on (a,b)</li>
+                    <li>Calculate (f(b) - f(a))/(b - a)</li>
+                    <li>Find c where f'(c) equals this value</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $f'(c) = \frac{f(b) - f(a)}{b - a}$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Not checking continuity conditions</li>
+                    <li>Confusing with Rolle's theorem</li>
+                    <li>Computational errors</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Theoretical foundation for derivatives and optimization theory.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>16. Optimization Word Problems</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Identify objective function (maximize/minimize)</li>
+                    <li>Identify constraint equation</li>
+                    <li>Express objective in one variable</li>
+                    <li>Find critical points and test</li>
+                    <li>Check endpoints and interpret</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Strategy:</strong> Constraint → Single variable → Optimize
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Not identifying constraints properly</li>
+                    <li>Forgetting to check domain restrictions</li>
+                    <li>Misinterpreting word problem setup</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Real-world application of derivatives, critical points, and constraint analysis.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>17. Antiderivatives (Indefinite Integrals)</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Recognize basic antiderivative patterns</li>
+                    <li>Use reverse power rule when applicable</li>
+                    <li>Add constant of integration</li>
+                    <li>Check by differentiating result</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\int x^n dx = \frac{x^{n+1}}{n+1} + C$ (n ≠ -1)
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting constant of integration</li>
+                    <li>Mishandling special cases (n = -1)</li>
+                    <li>Not checking answer by differentiating</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Foundation for definite integrals, area problems, and differential equations.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>18. Definite Integrals</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Find antiderivative F(x)</li>
+                    <li>Apply fundamental theorem: F(b) - F(a)</li>
+                    <li>Evaluate at upper limit</li>
+                    <li>Subtract evaluation at lower limit</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Formula:</strong> $\int_a^b f(x) dx = F(b) - F(a)$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Forgetting to subtract F(a)</li>
+                    <li>Sign errors in evaluation</li>
+                    <li>Not simplifying final answer</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Connects derivatives and integrals, used for area, volume, and accumulation problems.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>19. Area Between Curves</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Find intersection points</li>
+                    <li>Determine which function is on top</li>
+                    <li>Set up integral: ∫[top - bottom]dx</li>
+                    <li>Evaluate definite integral</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Setup:</strong> $\int_a^b [f(x) - g(x)] dx$ where $f(x) \geq g(x)$
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Wrong order of functions</li>
+                    <li>Missing intersection points</li>
+                    <li>Not splitting at crossing points</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Application of definite integrals and geometric interpretation.</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="problem-section">
+            <h2>20. Word Problem Analysis Framework</h2>
+            
+            <div class="steps">
+                <h3>Steps to Solve:</h3>
+                <ul>
+                    <li>Read problem multiple times carefully</li>
+                    <li>Identify what's given vs unknown</li>
+                    <li>Draw diagram when possible</li>
+                    <li>Set up mathematical relationships</li>
+                    <li>Choose appropriate calculus technique</li>
+                </ul>
+            </div>
+
+            <div class="formula-box">
+                <strong>Key Questions:</strong> What changes? What's optimized? What's the constraint?
+            </div>
+
+            <div class="pitfalls">
+                <h3>Common Pitfalls:</h3>
+                <ul>
+                    <li>Rushing through problem setup</li>
+                    <li>Not visualizing the situation</li>
+                    <li>Choosing wrong mathematical approach</li>
+                </ul>
+            </div>
+
+            <div class="connections">
+                <h3>How it Relates:</h3>
+                <p>Meta-skill that applies to all calculus applications and real-world problem solving.</p>
+            </div>
+        </div>
+
+        <div class="section-divider">⚡ ⚡ ⚡</div>
+
+        <div class="quick-reference">
+            <h2>Quick Reference Formulas</h2>
+            
+            <div class="formula-grid">
+                <div class="formula-category">
+                    <h4>Derivatives</h4>
+                    <div style="text-align: left;">
+                        Power Rule: $\frac{d}{dx}[x^n] = nx^{n-1}$<br><br>
+                        Chain Rule: $\frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)$<br><br>
+                        Product Rule: $\frac{d}{dx}[uv] = u'v + uv'$<br><br>
+                        Quotient Rule: $\frac{d}{dx}\left[\frac{u}{v}\right] = \frac{u'v - uv'}{v^2}$
+                    </div>
+                </div>
+
+                <div class="formula-category">
+                    <h4>Special Functions</h4>
+                    <div style="text-align: left;">
+                        $\frac{d}{dx}[e^x] = e^x$<br><br>
+                        $\frac{d}{dx}[\ln(x)] = \frac{1}{x}$<br><br>
+                        $\frac{d}{dx}[\sin(x)] = \cos(x)$<br><br>
+                        $\frac{d}{dx}[\cos(x)] = -\sin(x)$
+                    </div>
+                </div>
+
+                <div class="formula-category">
+                    <h4>Integration</h4>
+                    <div style="text-align: left;">
+                        $\int x^n dx = \frac{x^{n+1}}{n+1} + C$<br><br>
+                        $\int e^x dx = e^x + C$<br><br>
+                        $\int \frac{1}{x} dx = \ln|x| + C$<br><br>
+                        Fundamental Theorem: $\int_a^b f(x) dx = F(b) - F(a)$
+                    </div>
+                </div>
+
+                <div class="formula-category">
+                    <h4>Limits & Special Cases</h4>
+                    <div style="text-align: left;">
+                        L'Hôpital's Rule: $\lim_{x \to a} \frac{f(x)}{g(x)} = \lim_{x \to a} \frac{f'(x)}{g'(x)}$<br><br>
+                        Linear Approximation: $L(x) = f(a) + f'(a)(x - a)$<br><br>
+                        Mean Value Theorem: $f'(c) = \frac{f(b) - f(a)}{b - a}$
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise().then(() => {
+                    console.log('All math has been rendered');
+                }).catch((err) => console.log('MathJax rendering error: ' + err.message));
+            }
+        });
+    </script>
+</body>
+</html>
