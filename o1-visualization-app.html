@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Fourier Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        #fps {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="fps">FPS: <span id="fpsValue">0</span></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script>
+        let scene, camera, renderer, clock;
+        let mesh, uniforms;
+        let lastTime = performance.now();
+        let frameCount = 0;
+
+        const config = {
+            speed: 1.0,
+            amplitude: 1.0,
+            frequency: 1.0,
+            complexity: 1.0,
+            colorScheme: 'rainbow',
+            autoRotate: true,
+            rotateSpeed: 0.5,
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+
+            const geometry = new THREE.PlaneBufferGeometry(4, 4, 256, 256);
+
+            uniforms = {
+                time: { value: 1.0 },
+                speed: { value: config.speed },
+                amplitude: { value: config.amplitude },
+                frequency: { value: config.frequency },
+                complexity: { value: config.complexity },
+                colorScheme: { value: 0 },
+            };
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: vertexShader(),
+                fragmentShader: fragmentShader(),
+                wireframe: false,
+                side: THREE.DoubleSide,
+            });
+
+            mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            setupGUI();
+            animate();
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function vertexShader() {
+            return `
+                uniform float time;
+                uniform float speed;
+                uniform float amplitude;
+                uniform float frequency;
+                uniform float complexity;
+
+                varying vec2 vUv;
+                varying float vHeight;
+
+                float noise(vec3 p) {
+                    return sin(p.x) * sin(p.y) * sin(p.z);
+                }
+
+                void main() {
+                    vUv = uv;
+
+                    vec3 pos = position;
+                    float t = time * speed;
+
+                    float n = noise(pos * frequency * complexity + t);
+
+                    pos.z += n * amplitude;
+
+                    vHeight = pos.z;
+
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `;
+        }
+
+        function fragmentShader() {
+            return `
+                varying vec2 vUv;
+                varying float vHeight;
+                uniform int colorScheme;
+
+                void main() {
+                    vec3 color;
+
+                    if (colorScheme == 0) {
+                        color = vec3(0.5 + 0.5 * sin(vHeight * 10.0), 0.5 + 0.5 * cos(vHeight * 10.0), 1.0 - vHeight);
+                    } else if (colorScheme == 1) {
+                        color = vec3(vUv, 1.0 - vHeight);
+                    } else {
+                        color = vec3(vHeight, vHeight * 0.5, 1.0 - vHeight);
+                    }
+
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `;
+        }
+
+        function setupGUI() {
+            const gui = new dat.GUI();
+
+            gui.add(config, 'speed', 0.1, 5.0).onChange(value => { uniforms.speed.value = value; });
+            gui.add(config, 'amplitude', 0.1, 5.0).onChange(value => { uniforms.amplitude.value = value; });
+            gui.add(config, 'frequency', 0.1, 5.0).onChange(value => { uniforms.frequency.value = value; });
+            gui.add(config, 'complexity', 0.1, 5.0).onChange(value => { uniforms.complexity.value = value; });
+            gui.add(config, 'colorScheme', { 'Rainbow': 0, 'UV Map': 1, 'Height Map': 2 }).onChange(value => { uniforms.colorScheme.value = parseInt(value); });
+            gui.add(config, 'autoRotate');
+            gui.add(config, 'rotateSpeed', 0.1, 5.0);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            uniforms.time.value += delta;
+
+            if (config.autoRotate) {
+                mesh.rotation.y += delta * config.rotateSpeed * 0.1;
+                mesh.rotation.x += delta * config.rotateSpeed * 0.05;
+            }
+
+            renderer.render(scene, camera);
+            updateFPS();
+        }
+
+        function updateFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            const elapsed = currentTime - lastTime;
+
+            if (elapsed >= 1000) {
+                const fps = Math.round((frameCount * 1000) / elapsed);
+                document.getElementById('fpsValue').textContent = fps;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        init();
+    </script>
+</body>
+</html>
