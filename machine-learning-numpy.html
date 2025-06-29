@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: The NumPy Universe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Subtle Harmony -->
+    <!-- Application Structure Plan: A thematic, non-linear, single-page application with a fixed sidebar for navigation. This structure is chosen over a simple linear scroll to empower users to self-direct their learning journey. It breaks the dense technical content into digestible, purpose-driven sections (Core Concepts, Simulation Lab, Ecosystem Hub, AI Bridge, Final Frontier). This segmented approach enhances engagement and comprehension by allowing users to either explore systematically or jump directly to topics of interest, such as the interactive simulations or the AI comparisons. Key interactions include live canvas-based simulations (Pi, Game of Life), interactive HTML/CSS diagrams, and content reveals on-click to manage information density. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Memory Model. Goal: Compare. Viz: Interactive HTML/CSS diagram. Interaction: Hover to highlight differences. Justification: More intuitive and less abstract than text alone. Library: HTML/CSS.
+        - Report Info: Dtypes. Goal: Compare memory usage. Viz: Bar Chart. Interaction: Clicking a `dtype` in a table updates the chart. Justification: Visually quantifies the abstract concept of memory savings. Library: Chart.js.
+        - Report Info: Monte Carlo. Goal: Demonstrate stochastic simulation. Viz: Canvas-based scatter plot. Interaction: "Run" button with a slider for point count. Justification: Active participation makes the concept of approximation tangible. Library: Canvas API.
+        - Report Info: Game of Life. Goal: Show emergent complexity. Viz: Canvas-based grid. Interaction: Start/Stop/Reset controls. Justification: A classic, visually compelling demonstration of algorithmic rules. Library: Canvas API.
+        - Report Info: Ecosystem Role. Goal: Show relationships. Viz: HTML/CSS hub-and-spoke diagram. Interaction: Click a library to see its connection to NumPy. Justification: Visually maps NumPy's central role in the data science stack. Library: HTML/CSS.
+        - Report Info: AI Framework Comparison. Goal: Compare features. Viz: Interactive HTML Table. Interaction: Hover to highlight rows. Justification: A clear, structured way to present dense comparative data. Library: HTML.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .nav-link { transition: all 0.2s ease-in-out; }
+        .nav-link.active { background-color: #4338ca; color: white; }
+        .nav-link:not(.active):hover { background-color: #e0e7ff; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        .simulation-canvas { background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav class="bg-white md:w-64 p-4 md:p-6 border-b md:border-b-0 md:border-r border-slate-200 sticky top-0 md:h-screen z-20">
+            <h1 class="text-2xl font-bold text-indigo-700 mb-8">NumPy Universe</h1>
+            <ul class="space-y-2">
+                <li><a href="#intro" class="nav-link block w-full text-left font-semibold px-4 py-2 rounded-lg text-slate-700">Introduction</a></li>
+                <li><a href="#core" class="nav-link block w-full text-left font-semibold px-4 py-2 rounded-lg text-slate-700">The Core Engine</a></li>
+                <li><a href="#simlab" class="nav-link block w-full text-left font-semibold px-4 py-2 rounded-lg text-slate-700">Simulation Lab</a></li>
+                <li><a href="#ecosystem" class="nav-link block w-full text-left font-semibold px-4 py-2 rounded-lg text-slate-700">Ecosystem Hub</a></li>
+                <li><a href="#ai" class="nav-link block w-full text-left font-semibold px-4 py-2 rounded-lg text-slate-700">The AI Bridge</a></li>
+                <li><a href="#frontier" class="nav-link block w-full text-left font-semibold px-4 py-2 rounded-lg text-slate-700">The Final Frontier</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 sm:p-6 md:p-10">
+            
+            <section id="intro" class="content-section space-y-6">
+                <h2 class="text-4xl font-bold text-slate-900 border-b-4 border-indigo-500 pb-2">NumPy Unleashed</h2>
+                <p class="text-lg text-slate-600">This interactive report explores the world of NumPy, the foundational package for scientific computing in Python. The unparalleled success of Python in the data-centric domains is built upon NumPy's high-performance N-dimensional array, or `ndarray`. Here, we deconstruct its core principles, demonstrate its power through interactive simulations, and map its vast influence across the modern analytics and AI landscape. Navigate through the sections to discover how a simple array object powers everything from academic research to cutting-edge artificial intelligence.</p>
+                <div class="bg-indigo-100 border-l-4 border-indigo-500 text-indigo-700 p-4 rounded-r-lg">
+                    <p class="font-semibold">How to use this report:</p>
+                    <p>Use the navigation on the left to jump between topics. Many sections contain interactive elements—try clicking buttons, adjusting sliders, and hovering over diagrams to engage with the content directly.</p>
+                </div>
+            </section>
+
+            <section id="core" class="content-section space-y-8">
+                <h2 class="text-4xl font-bold text-slate-900 border-b-4 border-indigo-500 pb-2">The Core Engine</h2>
+                <p class="text-lg text-slate-600">The heart of NumPy is the `ndarray`, an object designed for maximum efficiency. Its performance isn't magic; it comes from deliberate, low-level architectural decisions that prioritize speed and memory optimization. Understanding these principles is key to grasping the full spectrum of applications NumPy enables.</p>
+
+                <div class="p-6 bg-white rounded-xl shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold">Memory Model: Contiguous vs. Scattered</h3>
+                    <p class="text-slate-600">A standard Python list stores pointers to objects scattered in memory. A NumPy array stores its elements in one single, contiguous block. This structure is critical for performance because it allows modern CPUs to use their high-speed cache efficiently.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="border-2 border-rose-400 rounded-lg p-4">
+                            <h4 class="font-bold text-rose-600 text-center">Python List (Scattered Pointers)</h4>
+                            <div class="flex justify-around items-center h-48 flex-wrap gap-2">
+                                <div class="w-16 h-12 bg-rose-100 text-rose-800 flex items-center justify-center rounded shadow">Pointer</div>
+                                <span class="text-2xl text-rose-400">&rarr;</span>
+                                <div class="w-12 h-12 bg-rose-200 text-rose-800 flex items-center justify-center rounded shadow">Obj 1</div>
+                                <div class="w-16 h-12 bg-rose-100 text-rose-800 flex items-center justify-center rounded shadow">Pointer</div>
+                                <span class="text-2xl text-rose-400">&rarr;</span>
+                                <div class="w-12 h-12 bg-rose-200 text-rose-800 flex items-center justify-center rounded shadow">Obj 2</div>
+                            </div>
+                            <p class="text-sm text-center text-slate-500">Inefficient memory access; potential for cache misses.</p>
+                        </div>
+                        <div class="border-2 border-emerald-400 rounded-lg p-4">
+                            <h4 class="font-bold text-emerald-600 text-center">NumPy ndarray (Contiguous Block)</h4>
+                            <div class="flex justify-center items-center h-48">
+                                <div class="bg-emerald-100 rounded shadow flex">
+                                    <div class="w-12 h-12 bg-emerald-200 text-emerald-800 flex items-center justify-center border-r border-emerald-300">1</div>
+                                    <div class="w-12 h-12 bg-emerald-200 text-emerald-800 flex items-center justify-center border-r border-emerald-300">2</div>
+                                    <div class="w-12 h-12 bg-emerald-200 text-emerald-800 flex items-center justify-center border-r border-emerald-300">3</div>
+                                    <div class="w-12 h-12 bg-emerald-200 text-emerald-800 flex items-center justify-center">4</div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-center text-slate-500">Cache-friendly; enables massive speedups.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold">The `dtype` Imperative: Optimizing Memory</h3>
+                    <p class="text-slate-600">All elements in an `ndarray` must have the same data type, or `dtype`. This choice directly dictates memory footprint and can dramatically affect performance. Click on a data type below to see how it compares to the default (`float64`) in terms of memory usage.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="overflow-x-auto">
+                            <table id="dtype-table" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Type</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memory</th></tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr data-bytes="1" class="cursor-pointer hover:bg-slate-100"> <td class="px-6 py-4 whitespace-nowrap font-mono">np.int8</td> <td class="px-6 py-4 whitespace-nowrap">1 byte</td> </tr>
+                                    <tr data-bytes="2" class="cursor-pointer hover:bg-slate-100"> <td class="px-6 py-4 whitespace-nowrap font-mono">np.float16</td> <td class="px-6 py-4 whitespace-nowrap">2 bytes</td> </tr>
+                                    <tr data-bytes="4" class="cursor-pointer hover:bg-slate-100"> <td class="px-6 py-4 whitespace-nowrap font-mono">np.float32</td> <td class="px-6 py-4 whitespace-nowrap">4 bytes</td> </tr>
+                                    <tr data-bytes="8" class="cursor-pointer hover:bg-slate-100 bg-indigo-100"> <td class="px-6 py-4 whitespace-nowrap font-mono">np.float64</td> <td class="px-6 py-4 whitespace-nowrap">8 bytes</td> </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dtype-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="simlab" class="content-section space-y-8">
+                <h2 class="text-4xl font-bold text-slate-900 border-b-4 border-indigo-500 pb-2">Simulation Lab</h2>
+                 <p class="text-lg text-slate-600">NumPy transforms abstract math into concrete, computable simulations. This section provides interactive examples of NumPy in action. See how vectorized operations enable the modeling of complex systems with stunning efficiency. Press the "Run" buttons to see these concepts come to life.</p>
+                
+                <div class="p-6 bg-white rounded-xl shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold">Monte Carlo: Estimating π</h3>
+                    <p class="text-slate-600">We can estimate π by scattering random points in a square and finding the ratio that falls inside an inscribed circle. A vectorized NumPy implementation does this for millions of points almost instantly. Adjust the slider and run the simulation to see the estimate converge.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <div class="chart-container mx-auto">
+                                <canvas id="pi-canvas" class="simulation-canvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="space-y-4 text-center">
+                            <div class="flex items-center justify-center space-x-4">
+                               <label for="points-slider" class="font-medium">Points: <span id="points-label">10000</span></label>
+                               <input id="points-slider" type="range" min="1000" max="50000" value="10000" step="1000" class="w-full">
+                            </div>
+                            <button id="run-pi-sim" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition">Run Simulation</button>
+                            <div class="text-2xl font-bold">Estimated π: <span id="pi-estimate" class="text-indigo-600">0.0000</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold">Cellular Automata: Conway's Game of Life</h3>
+                    <p class="text-slate-600">A classic example of emergent complexity from simple rules. The entire grid is a 2D NumPy array, and the update step is a single, highly efficient 2D convolution operation, demonstrating how NumPy transforms logical systems into problems of linear algebra.</p>
+                    <div class="flex flex-col items-center gap-4">
+                        <canvas id="life-canvas" width="400" height="400" class="simulation-canvas"></canvas>
+                        <div class="flex space-x-4">
+                            <button id="life-start" class="bg-emerald-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-emerald-700 transition">Start</button>
+                            <button id="life-stop" class="bg-rose-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-rose-700 transition">Stop</button>
+                            <button id="life-reset" class="bg-slate-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-600 transition">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ecosystem" class="content-section space-y-8">
+                <h2 class="text-4xl font-bold text-slate-900 border-b-4 border-indigo-500 pb-2">Ecosystem Hub</h2>
+                <p class="text-lg text-slate-600">NumPy is the lingua franca of the Python data science ecosystem. Its `ndarray` is the invisible foundation for almost every major analytics library. This diagram illustrates NumPy's central role. Click on a satellite library to learn about its symbiotic relationship with NumPy.</p>
+                <div class="relative w-full h-[600px] flex items-center justify-center" id="ecosystem-diagram">
+                    <div class="absolute w-36 h-36 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold z-10 shadow-lg">NumPy</div>
+                    <div class="satellite" style="--angle: 0deg; --radius: 200px;" data-lib="pandas">Pandas</div>
+                    <div class="satellite" style="--angle: 60deg; --radius: 200px;" data-lib="scipy">SciPy</div>
+                    <div class="satellite" style="--angle: 120deg; --radius: 200px;" data-lib="scikit">Scikit-learn</div>
+                    <div class="satellite" style="--angle: 180deg; --radius: 200px;" data-lib="matplotlib">Matplotlib</div>
+                    <div class="satellite" style="--angle: 240deg; --radius: 200px;" data-lib="vision">Vision Libs</div>
+                    <div class="satellite" style="--angle: 300deg; --radius: 200px;" data-lib="audio">Audio Libs</div>
+                </div>
+                <div id="ecosystem-info" class="p-6 bg-white rounded-xl shadow-md transition-opacity duration-500 opacity-0 min-h-[150px]">
+                    <h3 id="info-title" class="text-2xl font-semibold mb-2"></h3>
+                    <p id="info-text" class="text-slate-600"></p>
+                </div>
+                 <style>
+                    .satellite {
+                        position: absolute;
+                        width: 100px;
+                        height: 100px;
+                        background-color: #e0e7ff;
+                        color: #3730a3;
+                        border: 2px solid #c7d2fe;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        transform: translate(-50%, -50%) rotate(calc(-1 * var(--angle))) translateX(var(--radius)) rotate(var(--angle));
+                    }
+                    .satellite:hover, .satellite.active {
+                        background-color: #4f46e5;
+                        color: white;
+                        transform: translate(-50%, -50%) rotate(calc(-1 * var(--angle))) translateX(var(--radius)) rotate(var(--angle)) scale(1.1);
+                        z-index: 20;
+                    }
+                </style>
+            </section>
+
+            <section id="ai" class="content-section space-y-8">
+                <h2 class="text-4xl font-bold text-slate-900 border-b-4 border-indigo-500 pb-2">The AI Bridge</h2>
+                <p class="text-lg text-slate-600">In AI and Machine Learning, NumPy is the essential bridge between data preparation and high-performance model training. While deep learning frameworks like PyTorch and TensorFlow introduce the `Tensor` for GPU acceleration and automatic differentiation, they are intentionally designed to be interoperable with NumPy, which remains the standard for preprocessing pipelines.</p>
+                
+                <div class="p-6 bg-white rounded-xl shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold">The Scikit-learn API Contract</h3>
+                    <p class="text-slate-600">Scikit-learn, the most popular classical ML library, enforces a strict API contract centered on NumPy. All models expect input data `X` as a `[n_samples, n_features]` NumPy array and target data `y` as a `[n_samples]` array. This standardization, built on NumPy's memory model, is key to the library's efficiency and consistency.</p>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold">Framework Comparison: `ndarray` vs. `Tensor`</h3>
+                    <p class="text-slate-600">This table highlights the key differences and synergies between NumPy's array and the Tensors used in deep learning. NumPy handles the data logistics on the CPU, then hands it off to the frameworks for the heavy lifting on the GPU.</p>
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NumPy `ndarray`</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PyTorch/TF `Tensor`</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-slate-50"> <td class="px-6 py-4 font-semibold">Primary Use</td> <td class="px-6 py-4">General Scientific Computing</td> <td class="px-6 py-4">Deep Learning</td> </tr>
+                                <tr class="hover:bg-slate-50"> <td class="px-6 py-4 font-semibold">GPU Acceleration</td> <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-rose-100 text-rose-800">No</span></td> <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">Yes (Core Feature)</span></td> </tr>
+                                <tr class="hover:bg-slate-50"> <td class="px-6 py-4 font-semibold">Auto Differentiation</td> <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-rose-100 text-rose-800">No</span></td> <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">Yes (Core Feature)</span></td> </tr>
+                                <tr class="hover:bg-slate-50"> <td class="px-6 py-4 font-semibold">Ecosystem</td> <td class="px-6 py-4">Foundation of SciPy stack</td> <td class="px-6 py-4">Seamless interop with NumPy</td> </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="frontier" class="content-section space-y-6">
+                <h2 class="text-4xl font-bold text-slate-900 border-b-4 border-indigo-500 pb-2">The Final Frontier</h2>
+                <p class="text-lg text-slate-600">NumPy's paradigm is far from exhausted. The next frontiers lie in using the `ndarray` to represent and compute on increasingly abstract concepts, pushing numerical computing into new domains. The following are speculative but powerful ideas for how NumPy's core principles can architect the next generation of intelligent systems.</p>
+                <div class="space-y-4" id="frontier-accordion">
+                    <div class="frontier-item bg-white rounded-xl shadow-md overflow-hidden">
+                        <button class="frontier-header w-full text-left p-6 font-semibold text-xl flex justify-between items-center">
+                            <span>Computational Biology & In-Silico Discovery</span>
+                            <span class="frontier-icon transform transition-transform">+</span>
+                        </button>
+                        <div class="frontier-content p-6 pt-0 text-slate-600 hidden">
+                            <p><strong>Current State:</strong> Tools like AlphaFold represent protein structures as numerical data to predict their shape. Libraries are increasingly adopting NumPy-centric designs for massive performance gains in structural calculations.</p>
+                            <p class="mt-2"><strong>Speculative Idea:</strong> A "Dynamic Proteome Framework" where a protein's entire collection of possible shapes (its conformational ensemble) is represented as a high-dimensional `ndarray`. This would allow researchers to simulate not just static structures, but the dynamic interactions of molecules, enabling high-throughput screening for new classes of drugs by calculating complex energy landscapes with vectorized operations like `np.einsum`.</p>
+                        </div>
+                    </div>
+                    <div class="frontier-item bg-white rounded-xl shadow-md overflow-hidden">
+                         <button class="frontier-header w-full text-left p-6 font-semibold text-xl flex justify-between items-center">
+                            <span>Physics-Informed AI & Digital Twins</span>
+                            <span class="frontier-icon transform transition-transform">+</span>
+                        </button>
+                        <div class="frontier-content p-6 pt-0 text-slate-600 hidden">
+                            <p><strong>Current State:</strong> Hybrid "Digital Twins" combine physics-based models with ML models to create virtual replicas of real-world systems for predictive maintenance and optimization.</p>
+                            <p class="mt-2"><strong>Speculative Idea:</strong> A "Unified State-Space Framework" using NumPy's unique **structured arrays**. A single array could represent the complete state of a digital twin—mixing physical parameters (temperature, pressure) and ML model parameters (weights, biases) in one object. This would allow for atomic analysis of the entire system, enabling study of the co-evolution of the physical asset and its adaptive AI model.</p>
+                        </div>
+                    </div>
+                     <div class="frontier-item bg-white rounded-xl shadow-md overflow-hidden">
+                         <button class="frontier-header w-full text-left p-6 font-semibold text-xl flex justify-between items-center">
+                            <span>Neuro-Symbolic AI: Computable Knowledge</span>
+                            <span class="frontier-icon transform transition-transform">+</span>
+                        </button>
+                        <div class="frontier-content p-6 pt-0 text-slate-600 hidden">
+                            <p><strong>Current State:</strong> Neuro-symbolic AI aims to combine the pattern recognition of neural networks with the logical reasoning of symbolic AI to create more transparent and rational systems.</p>
+                            <p class="mt-2"><strong>Speculative Idea:</strong> A "NumPy-based Logical Inference Engine." Here, a knowledge graph is an adjacency matrix, and logical rules are a "rule tensor." The process of logical inference would become a series of highly-optimized, vectorized matrix operations. This would transform slow, recursive symbolic reasoning into a massively parallel numerical computation, creating a concrete, high-performance bridge between neural perception and symbolic reasoning.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Navigation Logic ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.content-section');
+
+    function updateActiveState() {
+        let currentHash = window.location.hash || '#intro';
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentHash) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        sections.forEach(section => {
+            if ('#' + section.id === currentHash) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
+            }
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            history.pushState(null, null, e.currentTarget.href);
+            updateActiveState();
+        });
+    });
+    
+    window.addEventListener('popstate', updateActiveState);
+    updateActiveState();
+
+    // --- Core Engine: DType Chart ---
+    const dtypeTable = document.getElementById('dtype-table');
+    const dtypeChartCanvas = document.getElementById('dtype-chart');
+    let dtypeChart;
+
+    function createOrUpdateDtypeChart(selectedBytes) {
+        const data = {
+            labels: ['Selected Type', 'Default (float64)'],
+            datasets: [{
+                label: 'Memory per Element (bytes)',
+                data: [selectedBytes, 8],
+                backgroundColor: ['#6366f1', '#a5b4fc'],
+                borderColor: ['#4f46e5', '#818cf8'],
+                borderWidth: 1
+            }]
+        };
+
+        if (dtypeChart) {
+            dtypeChart.data = data;
+            dtypeChart.update();
+        } else {
+            dtypeChart = new Chart(dtypeChartCanvas, {
+                type: 'bar',
+                data: data,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Memory Usage Comparison' }
+                    },
+                    scales: { x: { beginAtZero: true, max: 8 } }
+                }
+            });
+        }
+    }
+    
+    dtypeTable.addEventListener('click', (e) => {
+        const row = e.target.closest('tr');
+        if (row && row.dataset.bytes) {
+            document.querySelectorAll('#dtype-table tr').forEach(r => r.classList.remove('bg-indigo-100'));
+            row.classList.add('bg-indigo-100');
+            createOrUpdateDtypeChart(parseInt(row.dataset.bytes));
+        }
+    });
+    
+    createOrUpdateDtypeChart(8);
+
+    // --- Simulation Lab: Pi Estimation ---
+    const runPiSimBtn = document.getElementById('run-pi-sim');
+    const piEstimateEl = document.getElementById('pi-estimate');
+    const piCanvas = document.getElementById('pi-canvas');
+    const pointsSlider = document.getElementById('points-slider');
+    const pointsLabel = document.getElementById('points-label');
+    const piCtx = piCanvas.getContext('2d');
+
+    pointsSlider.addEventListener('input', (e) => {
+        pointsLabel.textContent = e.target.value;
+    });
+
+    function runPiSimulation() {
+        const numPoints = parseInt(pointsSlider.value);
+        const w = piCanvas.width;
+        const h = piCanvas.height;
+        piCtx.clearRect(0, 0, w, h);
+        
+        piCtx.strokeStyle = '#9ca3af';
+        piCtx.lineWidth = 2;
+        piCtx.strokeRect(0, 0, w, h);
+        piCtx.beginPath();
+        piCtx.arc(w / 2, h / 2, w / 2, 0, 2 * Math.PI);
+        piCtx.stroke();
+
+        let insideCircle = 0;
+        for (let i = 0; i < numPoints; i++) {
+            const x = Math.random() * w;
+            const y = Math.random() * h;
+            const dx = x - w / 2;
+            const dy = y - h / 2;
+            if (dx * dx + dy * dy <= (w / 2) * (w / 2)) {
+                insideCircle++;
+                piCtx.fillStyle = '#ef4444'; // red
+            } else {
+                piCtx.fillStyle = '#3b82f6'; // blue
+            }
+            if (numPoints <= 20000) { // Avoid freezing browser
+                 piCtx.fillRect(x, y, 2, 2);
+            }
+        }
+        
+        const piEstimate = 4 * insideCircle / numPoints;
+        piEstimateEl.textContent = piEstimate.toFixed(4);
+    }
+    runPiSimBtn.addEventListener('click', runPiSimulation);
+    runPiSimulation(); // Initial run
+
+    // --- Simulation Lab: Game of Life ---
+    const lifeCanvas = document.getElementById('life-canvas');
+    const lifeCtx = lifeCanvas.getContext('2d');
+    const lifeStartBtn = document.getElementById('life-start');
+    const lifeStopBtn = document.getElementById('life-stop');
+    const lifeResetBtn = document.getElementById('life-reset');
+    
+    const resolution = 10;
+    const cols = lifeCanvas.width / resolution;
+    const rows = lifeCanvas.height / resolution;
+    let grid, animationId;
+
+    function buildGrid() {
+        return new Array(cols).fill(null)
+            .map(() => new Array(rows).fill(0)
+                .map(() => Math.floor(Math.random() * 2)));
+    }
+    
+    function drawGrid(grid) {
+        lifeCtx.clearRect(0, 0, lifeCanvas.width, lifeCanvas.height);
+        for (let col = 0; col < grid.length; col++) {
+            for (let row = 0; row < grid[col].length; row++) {
+                const cell = grid[col][row];
+                lifeCtx.beginPath();
+                lifeCtx.rect(col * resolution, row * resolution, resolution, resolution);
+                lifeCtx.fillStyle = cell ? 'black' : 'white';
+                lifeCtx.fill();
+                lifeCtx.stroke();
+            }
+        }
+    }
+
+    function nextGen(grid) {
+        const nextGrid = grid.map(arr => [...arr]);
+        for (let col = 0; col < grid.length; col++) {
+            for (let row = 0; row < grid[col].length; row++) {
+                const cell = grid[col][row];
+                let numNeighbours = 0;
+                for (let i = -1; i < 2; i++) {
+                    for (let j = -1; j < 2; j++) {
+                        if (i === 0 && j === 0) continue;
+                        const x_cell = (col + i + cols) % cols;
+                        const y_cell = (row + j + rows) % rows;
+                        numNeighbours += grid[x_cell][y_cell];
+                    }
+                }
+                if (cell === 1 && (numNeighbours < 2 || numNeighbours > 3)) {
+                    nextGrid[col][row] = 0;
+                } else if (cell === 0 && numNeighbours === 3) {
+                    nextGrid[col][row] = 1;
+                }
+            }
+        }
+        return nextGrid;
+    }
+    
+    function update() {
+        grid = nextGen(grid);
+        drawGrid(grid);
+        animationId = requestAnimationFrame(update);
+    }
+    
+    lifeStartBtn.addEventListener('click', () => {
+        if (!animationId) {
+            update();
+        }
+    });
+
+    lifeStopBtn.addEventListener('click', () => {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    });
+
+    lifeResetBtn.addEventListener('click', () => {
+        grid = buildGrid();
+        drawGrid(grid);
+    });
+
+    grid = buildGrid();
+    drawGrid(grid);
+
+    // --- Ecosystem Hub ---
+    const ecosystemDiagram = document.getElementById('ecosystem-diagram');
+    const ecosystemInfo = document.getElementById('ecosystem-info');
+    const infoTitle = document.getElementById('info-title');
+    const infoText = document.getElementById('info-text');
+
+    const ecosystemData = {
+        pandas: {
+            title: 'Pandas: Data Structures',
+            text: 'Pandas is built directly on top of NumPy. Its primary object, the DataFrame, is a container for Series objects, and each Series is essentially a labeled NumPy array. Pandas provides the high-level, intuitive interface, while NumPy provides the high-performance numerical engine underneath.'
+        },
+        scipy: {
+            title: 'SciPy: Scientific Algorithms',
+            text: 'SciPy provides a vast collection of algorithms for scientific and technical computing (e.g., optimization, integration, signal processing). It uses NumPy arrays as its fundamental data structure, extending NumPy\'s capabilities with domain-specific toolboxes.'
+        },
+        scikit: {
+            title: 'Scikit-learn: Machine Learning',
+            text: 'The de facto standard for classical machine learning, Scikit-learn\'s API is built around the NumPy array. All models and estimators expect data in the form of NumPy arrays, enabling efficient, standardized workflows for training and prediction.'
+        },
+        matplotlib: {
+            title: 'Matplotlib: Visualization',
+            text: 'The most popular plotting library in Python, Matplotlib is designed to accept NumPy arrays as its primary input. This allows for seamless visualization of data that has been processed and analyzed with NumPy and other ecosystem libraries.'
+        },
+        vision: {
+            title: 'Image/Vision Libraries',
+            text: 'Libraries like OpenCV, Scikit-image, and Pillow represent images as NumPy arrays (e.g., height x width x channels). This allows complex image processing operations like filtering and transformations to be performed as simple, fast array manipulations.'
+        },
+        audio: {
+            title: 'Audio/Signal Libraries',
+            text: 'Libraries like Librosa and SciPy\'s signal module represent audio waveforms as 1D NumPy arrays. This enables powerful analysis techniques like the Fast Fourier Transform (FFT) to be applied to audio data for feature extraction and recognition tasks.'
+        }
+    };
+
+    ecosystemDiagram.addEventListener('click', (e) => {
+        const satellite = e.target.closest('.satellite');
+        if (satellite) {
+            const lib = satellite.dataset.lib;
+            const data = ecosystemData[lib];
+
+            document.querySelectorAll('.satellite').forEach(s => s.classList.remove('active'));
+            satellite.classList.add('active');
+
+            infoTitle.textContent = data.title;
+            infoText.textContent = data.text;
+            ecosystemInfo.classList.remove('opacity-0');
+        }
+    });
+
+    // --- Frontier Accordion ---
+    const frontierItems = document.querySelectorAll('.frontier-item');
+    frontierItems.forEach(item => {
+        const header = item.querySelector('.frontier-header');
+        const content = item.querySelector('.frontier-content');
+        const icon = item.querySelector('.frontier-icon');
+        
+        header.addEventListener('click', () => {
+            const isVisible = !content.classList.contains('hidden');
+            
+            // Optional: Close other items when one is opened
+            frontierItems.forEach(i => {
+                i.querySelector('.frontier-content').classList.add('hidden');
+                i.querySelector('.frontier-icon').textContent = '+';
+                i.querySelector('.frontier-icon').classList.remove('rotate-45');
+            });
+
+            if (!isVisible) {
+                content.classList.remove('hidden');
+                icon.textContent = '-';
+                icon.classList.add('rotate-45');
+            }
+        });
+    });
+
+});
+</script>
+</body>
+</html>
+
