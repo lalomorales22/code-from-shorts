@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative AI API Platform Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Stone & Terracotta -->
+    <!-- Application Structure Plan: A top-level comparative dashboard with a radar chart for quick analysis, plus deep-dive sections for each company. Navigation uses a main nav bar and intra-section tabs to manage complexity. This hybrid dashboard/deep-dive model allows users to choose their desired level of detail, starting broad and drilling down, which is ideal for synthesizing a dense comparative report. -->
+    <!-- Visualization & Content Choices: 1. Master Capability Matrix -> Goal: Compare -> Viz: Interactive Radar Chart (Chart.js) -> Interaction: Hover tooltips show details -> Justification: Provides a multi-dimensional "at a glance" comparison of platform maturity. 2. Image Gen Head-to-Head -> Goal: Compare -> Viz: Side-by-side feature cards (HTML/Tailwind) -> Interaction: Clean visual layout -> Justification: Best for direct comparison of specific, differing parameters. 3. "Epic Paragraphs" -> Goal: Inform -> Viz: Collapsible text blocks (HTML/JS) -> Interaction: Click to expand/collapse -> Justification: Manages information density, providing the full technical detail on-demand without overwhelming the initial view. 4. Recommendations -> Goal: Guide -> Viz: Interactive card-based selector (HTML/JS) -> Interaction: Clicking a use-case highlights the recommended provider -> Justification: Turns static recommendations into an engaging, user-driven discovery tool. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f6;
+            color: #3d3d3d;
+        }
+        .nav-active {
+            color: #e07a5f;
+            border-bottom-color: #e07a5f;
+        }
+        .tab-active {
+            background-color: #e07a5f;
+            color: #ffffff;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 60vh;
+            width: 100%;
+            max-width: 800px;
+            max-height: 500px;
+        }
+        .recommendation-card.highlight {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #e07a5f;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-[#3d3d3d]">AI Platform Compass</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div id="main-nav" class="ml-10 flex items-baseline space-x-4">
+                        <a href="#dashboard" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#e07a5f] border-b-2 border-transparent transition-colors duration-200">Dashboard</a>
+                        <a href="#anthropic" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#e07a5f] border-b-2 border-transparent transition-colors duration-200">Anthropic</a>
+                        <a href="#openai" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#e07a5f] border-b-2 border-transparent transition-colors duration-200">OpenAI</a>
+                        <a href="#xai" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#e07a5f] border-b-2 border-transparent transition-colors duration-200">xAI</a>
+                        <a href="#google" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#e07a5f] border-b-2 border-transparent transition-colors duration-200">Google</a>
+                        <a href="#recommendations" class="nav-link px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#e07a5f] border-b-2 border-transparent transition-colors duration-200">Recommendations</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="app-content" class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Content will be dynamically injected here -->
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>Interactive AI API Analysis | Data sourced from expert comparative report.</p>
+        </div>
+    </footer>
+
+    <script>
+        const appData = {
+            dashboard: {
+                title: "Comparative Dashboard",
+                intro: "This dashboard provides a high-level, multi-dimensional comparison of the leading Generative AI API platforms. Use the 'Platform Capability Matrix' to quickly assess the maturity of key features across providers. This at-a-glance view helps in identifying strategic advantages and feature gaps, guiding initial platform selection before a deeper dive.",
+                chartData: {
+                    labels: ['Core Chat API', 'Vision Input', 'Image Generation', 'Stateless Tool Use', 'Stateful Agents', 'Native Search Tool', 'Native Code Tool'],
+                    datasets: [
+                        { label: 'Anthropic', data: [3, 3, 0, 3, 0, 2, 2], backgroundColor: 'rgba(141, 117, 213, 0.2)', borderColor: 'rgba(141, 117, 213, 1)', pointBackgroundColor: 'rgba(141, 117, 213, 1)', borderWidth: 2},
+                        { label: 'OpenAI', data: [3, 3, 3, 3, 3, 2, 3], backgroundColor: 'rgba(64, 179, 162, 0.2)', borderColor: 'rgba(64, 179, 162, 1)', pointBackgroundColor: 'rgba(64, 179, 162, 1)', borderWidth: 2 },
+                        { label: 'xAI', data: [3, 3, 2, 3, 0, 3, 0], backgroundColor: 'rgba(88, 164, 232, 0.2)', borderColor: 'rgba(88, 164, 232, 1)', pointBackgroundColor: 'rgba(88, 164, 232, 1)', borderWidth: 2 },
+                        { label: 'Google', data: [3, 3, 3, 3, 0, 3, 3], backgroundColor: 'rgba(234, 67, 53, 0.2)', borderColor: 'rgba(234, 67, 53, 1)', pointBackgroundColor: 'rgba(234, 67, 53, 1)', borderWidth: 2 },
+                    ]
+                },
+                legend: "<strong>Legend:</strong> 3 = Mature, 2 = Limited/Beta, 0 = N/A"
+            },
+            anthropic: {
+                name: "Anthropic (Claude)",
+                intro: "Anthropic prioritizes safety, reliability, and predictability, making it a strong choice for enterprise applications in high-trust industries. Its API design emphasizes explicit developer control, mandatory versioning for stability, and a transparent, stateless approach to agentic tool use. This section explores the core Messages API and its unique Tool Use framework.",
+                color: "#8D75D5",
+                tabs: [
+                    {
+                        name: "Chat & Vision",
+                        content: {
+                            summary: "Anthropic's core interface is the Messages API, a stateless but powerful endpoint for text and vision. It is distinguished by its mandatory `anthropic-version` header, which guarantees API stability and prevents unexpected breaking changes—a critical feature for production systems.",
+                            epicParagraph: "The Anthropic Messages API provides stateless, multimodal conversational AI capabilities through a POST request to the `https://api.anthropic.com/v1/messages` endpoint. Authentication is managed via an `x-api-key` header containing your secret key, and requests must include the `anthropic-version: 2023-06-01` header for version pinning and stability. The request body is a JSON object requiring the `model` (e.g., `claude-3-5-sonnet-20241022`, `claude-3-opus-20240229`), `max_tokens` (e.g., 1024), and a `messages` array. This array contains a history of alternating `user` and `assistant` roles. For multimodal input, the `content` of a message can be an array of content blocks, supporting `{\"type\": \"text\", \"text\": \"...\"}` and `{\"type\": \"image\", \"source\": {\"type\": \"base64\", \"media_type\": \"image/jpeg\", \"data\": \"...\"}}`. Optional parameters include `temperature` (0.0 to 1.0) for randomness, `system` for high-level instructions, and `stop_sequences` for custom stop conditions."
+                        }
+                    },
+                    {
+                        name: "Agentic (Tool Use)",
+                        content: {
+                            summary: "Agentic capabilities are enabled via a 'tool use' framework built into the stateless Messages API. This approach offers maximum developer control and transparency, as the developer's application is responsible for executing tools and managing the conversational state. This is ideal for applications where auditability and security are paramount.",
+                            epicParagraph: "Anthropic enables agentic behavior through its stateless Messages API by including a `tools` parameter in the POST request to `/v1/messages`. This parameter accepts an array of tool definitions, each requiring a `name`, `description`, and an `input_schema` in JSON Schema format. When the model decides to use a tool, the API responds with a `stop_reason` of `tool_use` and the `content` array will contain one or more `tool_use` blocks. Each block includes a unique `tool_use_id`, the `name` of the tool, and the `input` object generated by the model. The developer must then execute the tool and send a new message with the `role` set to `user` containing a `tool_result` content block, which includes the corresponding `tool_use_id` and the `content` of the tool's output to complete the loop. Tool usage can be controlled with the `tool_choice` parameter (`auto`, `any`, `tool`)."
+                        }
+                    },
+                    {
+                        name: "Image Generation",
+                        content: {
+                            summary: "The Anthropic platform does not currently offer an image generation (text-to-image) capability. Its multimodal features are exclusively focused on image input (vision) and analysis.",
+                            epicParagraph: "Based on a comprehensive review of all available official documentation and API references, the Anthropic platform does not currently offer an image generation (text-to-image) capability. The platform's multimodal features are exclusively focused on image input and analysis. This represents a significant point of differentiation from OpenAI, xAI, and Google, all of which provide dedicated APIs or integrated capabilities for generating visual content."
+                        }
+                    }
+                ]
+            },
+            openai: {
+                name: "OpenAI (ChatGPT)",
+                intro: "OpenAI has set the de facto market standard with a mature, feature-rich, and well-documented API platform. Its key strengths are the versatile Chat Completions API, the creatively powerful DALL-E 3 Image API, and the pioneering Assistants API, which offers a stateful, managed framework for building advanced AI agents with significantly reduced complexity.",
+                color: "#40B3A2",
+                tabs: [
+                    {
+                        name: "Chat & Vision",
+                        content: {
+                            summary: "The Chat Completions API is the workhorse of the OpenAI platform, providing a robust and highly configurable interface for text and vision tasks. Its structure and extensive parameter set have become the baseline that many other services aim to replicate, supported by a massive developer ecosystem.",
+                            epicParagraph: "The OpenAI Chat Completions API is the core engine for conversational and vision tasks, accessed via a POST request to `https://api.openai.com/v1/chat/completions`. Authentication uses a Bearer token in the `Authorization` header. The request requires a `model` (e.g., `gpt-4o`, `o3`, `o4-mini`) and a `messages` array of objects with `role` (`system`, `user`, `assistant`) and `content`. Multimodal vision is supported by passing an array for `content`, including `{\"type\": \"text\", \"text\": \"...\"}` and `{\"type\": \"image_url\", \"image_url\": {\"url\": \"data:image/jpeg;base64,...\"}}`. It offers extensive control via optional parameters like `temperature`, `max_tokens`, `top_p`, `frequency_penalty`, and `presence_penalty`. Agentic capabilities are enabled through the `tools` and `tool_choice` parameters for stateless function calling."
+                        }
+                    },
+                    {
+                        name: "Image Generation",
+                        content: {
+                            summary: "OpenAI provides a dedicated and mature API for text-to-image generation powered by DALL-E 3. It stands out by offering developers granular creative control over the size, quality, and artistic style of the generated images, enabling precise tuning for different use cases.",
+                            epicParagraph: "OpenAI's image generation is handled by the DALL-E 3 model via a POST request to the `https://api.openai.com/v1/images/generations` endpoint. Authentication requires a Bearer token. The request body must include the `model` (`dall-e-3`) and a text `prompt`. It supports powerful customization through optional parameters: `size` (one of `1024x1024`, `1792x1024`, `1024x1792`), `quality` (`standard` or `hd` for finer detail), and `style` (`vivid` for hyper-real images or `natural` for a more subdued look). The API is limited to generating one image per call (`n=1`). The response format can be specified as `url` (providing a temporary link to the image) or `b64_json` (for a base64-encoded image string)."
+                        }
+                    },
+                    {
+                        name: "Agentic (Assistants API)",
+                        content: {
+                            summary: "The Assistants API is OpenAI's most significant strategic asset in the agentic space. It provides a stateful, managed framework that abstracts away the complexities of conversation management and tool orchestration. It is a platform for deploying persistent agents, not just calling a model, and includes powerful native tools like Code Interpreter and File Search.",
+                            epicParagraph: "The OpenAI Assistants API provides a stateful framework for building complex, persistent AI agents, abstracting away conversation management. It is object-oriented, revolving around: `Assistant` (the configured AI, with instructions, model, and tools), `Thread` (a conversation session), `Message` (user or assistant content added to a thread), and `Run` (an invocation of the Assistant on a Thread). Key endpoints include `/v1/assistants`, `/v1/threads`, `/v1/threads/{thread_id}/messages`, and `/v1/threads/{thread_id}/runs`. The framework natively integrates powerful, OpenAI-hosted tools like `code_interpreter` and `file_search`, which manage their own state and execution. The API is asynchronous, with developers polling a `Run` object's status until it reaches `completed`."
+                        }
+                    }
+                ]
+            },
+            xai: {
+                name: "xAI (Grok)",
+                intro: "xAI has entered the market as a pragmatic challenger, leveraging direct compatibility with the OpenAI API standard to accelerate adoption. Its unique strategic advantage is the proprietary `Live Search` tool, which leverages exclusive, real-time access to the X platform, positioning Grok as the premier model for applications requiring up-to-the-minute information.",
+                color: "#58A4E8",
+                tabs: [
+                    {
+                        name: "Chat & Vision",
+                        content: {
+                            summary: "The Grok API is intentionally compatible with the OpenAI Chat Completions standard, allowing for easy migration. It introduces unique features like the `reasoning_effort` parameter (`low` or `high`) on some models, giving developers a novel way to control the trade-off between response time and reasoning quality.",
+                            epicParagraph: "The xAI Grok API offers a chat and vision completion service that is intentionally compatible with the OpenAI API standard, accessed via a POST request to `https://api.x.ai/v1/chat/completions`. Authentication is done with a Bearer token in the `Authorization` header. The request body mirrors OpenAI's, requiring a `model` (e.g., `grok-3-beta`, `grok-3-mini-fast-latest`) and a `messages` array. A unique feature for `grok-3-mini` models is the optional `reasoning_effort` parameter, which can be set to `low` or `high` to trade off response time for reasoning quality. The API also supports vision input and is designed for easy migration from OpenAI by changing the base URL and API key."
+                        }
+                    },
+                    {
+                        name: "Image Generation",
+                        content: {
+                            summary: "xAI's image generation API is also OpenAI-compatible but is in a more nascent stage, lacking controls for size, quality, or style. Its unique feature is the `revised_prompt` returned in the response, offering transparency into how the model enhanced the user's prompt, which serves as a valuable learning tool for developers.",
+                            epicParagraph: "xAI provides image generation via a POST request to a separate `https://api.x.ai/v1/images/generations` endpoint, which is also OpenAI-compatible. The request requires a `model` (currently `grok-2-image-1212`), a text `prompt`, and supports an optional `n` parameter to generate up to 10 images at once. The response format can be `url` or `b64_json`. A distinctive feature is that the model first revises the user's prompt for better results, and this `revised_prompt` is returned in the response object, providing transparency. Currently, the API does not support parameters for controlling image size, quality, or style."
+                        }
+                    },
+                    {
+                        name: "Agentic (Tool Use & Live Search)",
+                        content: {
+                            summary: "xAI provides a standard, OpenAI-compatible function calling framework. However, its key differentiator is the `Live Search` tool, which grants the model access to real-time information from both the web and the X platform's conversational firehose. This proprietary data access creates a powerful moat for time-sensitive applications.",
+                            epicParagraph: "xAI's agentic capabilities are implemented via OpenAI-compatible function calling within the `/v1/chat/completions` endpoint. A `tools` parameter containing an array of function definitions (name, description, parameters) is passed in the request. The model responds with a `tool_calls` object in the assistant's message when it determines a function should be run. The developer executes the function and passes the result back in a subsequent call within a `tool` role message. The most significant and unique agentic feature, currently in beta, is `Live Search`, which can be enabled via a `search_parameters` object, allowing the model to pull real-time information from the web and the X platform."
+                        }
+                    }
+                ]
+            },
+            google: {
+                name: "Google (Gemini)",
+                intro: "Google's Gemini API is architecturally distinct, designed as a natively multimodal platform from the ground up. Its greatest strength is its deep integration with the Google Cloud and Vertex AI ecosystem, offering unparalleled power for developers building scalable, data-intensive applications. It provides a unique hybrid model for agentic capabilities, combining custom functions with powerful, Google-hosted native tools.",
+                color: "#EA4335",
+                tabs: [
+                    {
+                        name: "Core Multimodal Engine",
+                        content: {
+                            summary: "The `generateContent` API is a single, unified endpoint designed to handle an interleaved mix of text, image, audio, and video inputs seamlessly. The API is accessed via two paths: Google AI Studio for rapid prototyping and Vertex AI for enterprise-grade, production-ready deployment with full GCP integration.",
+                            epicParagraph: "The Google Gemini API is a unified multimodal service accessed via a POST request to `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`. Authentication uses an `x-goog-api-key` header. It is designed to be natively multimodal; the request body contains a `contents` array where each item has a `parts` array. A `part` can be `{\"text\": \"...\"}` or `{\"inline_data\": {\"mime_type\": \"image/jpeg\", \"data\": \"...\"}}`, allowing for interleaved text, image, audio, and video inputs in a single call. Key models include `gemini-2.5-pro` and the fast, cost-efficient `gemini-2.5-flash`. Configuration is managed through a `generationConfig` object (for `temperature`, `maxOutputTokens`, etc.) and a `safetySettings` object for granular content control. The API is available through Google AI Studio for quick starts and Vertex AI for enterprise-scale deployment."
+                        }
+                    },
+                    {
+                        name: "Image Generation",
+                        content: {
+                            summary: "Google integrates image generation as a native capability of its core multimodal model, powered by Imagen technology, rather than a separate endpoint. This SDK-first approach is powerful for creating context-aware images that are informed by the entire preceding conversation, making it ideal for rich, multimodal dialogues.",
+                            epicParagraph: "Google's image generation is powered by its Imagen family of models and is integrated into the Gemini API framework rather than being a standalone endpoint. It is primarily accessed via the official SDKs (e.g., Python,.NET), which abstract the specific API calls. For example, the `Mscc.GenerativeAI`.NET SDK exposes this capability through the `GenerativeModel` class. The Gemini API Cookbook provides examples for getting started with \"Imagen\" and \"Image-out\" capabilities. While a direct REST endpoint for simple image generation is not prominently documented, the capability is a core part of the multimodal platform, allowing for context-aware image creation within conversational flows."
+                        }
+                    },
+                    {
+                        name: "Agentic (Function Calling)",
+                        content: {
+                            summary: "Google offers a compelling hybrid agentic model. It supports standard, developer-executed function calling while also allowing the inclusion of powerful, Google-hosted native tools like `GoogleSearchTool` and `CodeExecutionTool` in the same API call. This provides a uniquely flexible and efficient path for building sophisticated agents.",
+                            epicParagraph: "Google Gemini's agentic functions are enabled via a `tools` parameter within the `generateContent` API call. This parameter takes a list of `Tool` objects, which contain `function_declarations`. Each declaration specifies the function's `name`, `description`, and `parameters` using a JSON Schema-like structure. When the model needs to call a function, the response includes a `function_call` object with the name and arguments. The developer executes the function and sends the output back in a new request using a `part` with a `function_response`. A key advantage is the native integration of powerful server-side tools like `GoogleSearchTool` and a sandboxed `CodeExecutionTool`, which can be added to the `tools` list to ground responses in real-time data and perform complex calculations without developer-side execution."
+                        }
+                    }
+                ]
+            },
+            recommendations: {
+                title: "Use-Case Recommendations",
+                intro: "The optimal choice of API platform depends heavily on your project's specific needs. This section provides an interactive guide to help you select the most suitable provider. Click on a use case that best matches your requirements to see the top recommendation and understand why it's the best fit.",
+                options: [
+                    {
+                        useCase: "Fastest Time-to-Market & Broadest Ecosystem",
+                        recommendation: "OpenAI",
+                        reason: "Remains the default choice for most new projects. Its mature, feature-complete APIs, extensive documentation, and vast community support network create the path of least resistance from idea to deployment. The Assistants API offers a unique, powerful shortcut to building complex, stateful agents."
+                    },
+                    {
+                        useCase: "Enterprise Safety, Reliability & Auditability",
+                        recommendation: "Anthropic",
+                        reason: "The premier choice for high-stakes, regulated industries. Its mandatory API versioning guarantees production stability, and its stateless, developer-controlled tool-use framework provides the transparency and auditability required for compliance."
+                    },
+                    {
+                        useCase: "Real-Time Social Data & Cost Control",
+                        recommendation: "xAI",
+                        reason: "Ideal for applications connected to live, public conversations. Its exclusive `Live Search` tool, with access to the X platform, is a powerful differentiator. Its OpenAI compatibility makes it easy to test, and parameters like `reasoning_effort` offer novel ways to optimize cost."
+                    },
+                    {
+                        useCase: "Deep Cloud Integration & Multimodal Grounding",
+                        recommendation: "Google",
+                        reason: "The leader for developers in the Google Cloud ecosystem. Its seamless integration with services like BigQuery, combined with powerful managed native tools like Google Search and a code interpreter, makes it the ultimate platform for creating scalable, data-intensive AI applications."
+                    }
+                ]
+            }
+        };
+
+        const appContent = document.getElementById('app-content');
+        const mainNav = document.getElementById('main-nav');
+        let radarChart = null;
+
+        function renderDashboard() {
+            const data = appData.dashboard;
+            appContent.innerHTML = `
+                <section id="dashboard" class="space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">${data.title}</h2>
+                        <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">${data.intro}</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+                         <h3 class="text-xl font-semibold mb-4 text-center">Platform Capability Matrix</h3>
+                         <div class="chart-container">
+                            <canvas id="capabilityChart"></canvas>
+                         </div>
+                         <p class="text-center mt-4 text-sm text-gray-500">${data.legend}</p>
+                    </div>
+                </section>
+            `;
+            createCapabilityChart(data.chartData);
+        }
+        
+        function createCapabilityChart(chartData) {
+            const ctx = document.getElementById('capabilityChart').getContext('2d');
+            if (radarChart) {
+                radarChart.destroy();
+            }
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 14 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    const status = value === 3 ? 'Mature' : (value === 2 ? 'Beta/Limited' : 'N/A');
+                                    label += status;
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { font: { size: 12 } },
+                            min: 0,
+                            max: 3,
+                            ticks: {
+                                stepSize: 1,
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCompanyPage(companyId) {
+            const data = appData[companyId];
+            const tabButtons = data.tabs.map((tab, index) => `
+                <button data-tab-id="${companyId}-${index}" class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${index === 0 ? 'tab-active' : 'text-gray-600 bg-gray-100 hover:bg-gray-200'}">
+                    ${tab.name}
+                </button>
+            `).join('');
+
+            const tabContents = data.tabs.map((tab, index) => `
+                <div id="${companyId}-${index}" class="tab-content space-y-4 ${index !== 0 ? 'hidden' : ''}">
+                    <p class="text-gray-700">${tab.content.summary}</p>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="p-4">
+                            <button class="toggle-details-btn text-sm font-medium text-[#e07a5f] hover:underline">Show Full API Spec</button>
+                        </div>
+                        <div class="details-content hidden p-4 border-t border-gray-200 bg-gray-800 text-gray-200 rounded-b-lg">
+                            <pre class="whitespace-pre-wrap text-xs"><code>${tab.content.epicParagraph}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            appContent.innerHTML = `
+                <section id="${companyId}" class="space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style="color: ${data.color};">${data.name}</h2>
+                        <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">${data.intro}</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+                        <div class="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-4">${tabButtons}</div>
+                        <div id="tab-content-container">${tabContents}</div>
+                    </div>
+                </section>
+            `;
+            addTabEventListeners(companyId);
+            addToggleEventListeners();
+        }
+
+        function renderRecommendations() {
+            const data = appData.recommendations;
+            const optionsHtml = data.options.map((opt, index) => `
+                <div class="bg-white rounded-xl shadow p-6 recommendation-card border-2 border-transparent transition-all duration-300 cursor-pointer" data-rec-id="${index}">
+                    <h4 class="text-lg font-semibold text-gray-800">${opt.useCase}</h4>
+                    <div class="rec-details hidden mt-4 space-y-2">
+                        <p class="text-base text-[#e07a5f] font-bold">Recommendation: ${opt.recommendation}</p>
+                        <p class="text-gray-600 text-sm">${opt.reason}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            appContent.innerHTML = `
+                <section id="recommendations" class="space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">${data.title}</h2>
+                        <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">${data.intro}</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">${optionsHtml}</div>
+                </section>
+            `;
+            addRecommendationEventListeners();
+        }
+
+        function addTabEventListeners(companyId) {
+            const tabContainer = document.querySelector(`#${companyId}`);
+            tabContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tab-btn')) {
+                    const tabId = e.target.dataset.tabId;
+                    
+                    tabContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active', 'text-white', 'bg-[#e07a5f]'));
+                    tabContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.add('text-gray-600', 'bg-gray-100', 'hover:bg-gray-200'));
+                    
+                    e.target.classList.add('tab-active', 'text-white', 'bg-[#e07a5f]');
+                    e.target.classList.remove('text-gray-600', 'bg-gray-100', 'hover:bg-gray-200');
+
+                    tabContainer.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                    document.getElementById(tabId).classList.remove('hidden');
+                }
+            });
+        }
+        
+        function addToggleEventListeners() {
+            appContent.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle-details-btn')) {
+                    const detailsContent = e.target.parentElement.nextElementSibling;
+                    const isHidden = detailsContent.classList.contains('hidden');
+                    detailsContent.classList.toggle('hidden');
+                    e.target.textContent = isHidden ? 'Hide Full API Spec' : 'Show Full API Spec';
+                }
+            });
+        }
+
+        function addRecommendationEventListeners() {
+            appContent.addEventListener('click', (e) => {
+                const card = e.target.closest('.recommendation-card');
+                if (card) {
+                    const recId = card.dataset.recId;
+                    const details = card.querySelector('.rec-details');
+
+                    if (card.classList.contains('highlight')) {
+                        card.classList.remove('highlight');
+                        details.classList.add('hidden');
+                    } else {
+                        document.querySelectorAll('.recommendation-card').forEach(c => {
+                            c.classList.remove('highlight');
+                            c.querySelector('.rec-details').classList.add('hidden');
+                        });
+                        card.classList.add('highlight');
+                        details.classList.remove('hidden');
+                    }
+                }
+            });
+        }
+        
+        function handleNavigation(hash) {
+            const cleanHash = hash.replace('#', '');
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === hash) {
+                    link.classList.add('nav-active');
+                } else {
+                    link.classList.remove('nav-active');
+                }
+            });
+
+            switch (cleanHash) {
+                case 'anthropic':
+                case 'openai':
+                case 'xai':
+                case 'google':
+                    renderCompanyPage(cleanHash);
+                    break;
+                case 'recommendations':
+                    renderRecommendations();
+                    break;
+                case 'dashboard':
+                default:
+                    renderDashboard();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            mainNav.addEventListener('click', (e) => {
+                if(e.target.tagName === 'A') {
+                    e.preventDefault();
+                    const hash = new URL(e.target.href).hash;
+                    window.history.pushState(null, '', hash);
+                    handleNavigation(hash);
+                }
+            });
+            
+            window.addEventListener('popstate', () => {
+                handleNavigation(window.location.hash || '#dashboard');
+            });
+
+            handleNavigation(window.location.hash || '#dashboard');
+        });
+    </script>
+</body>
+</html>
+
