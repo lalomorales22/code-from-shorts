@@ -80,7 +80,7 @@ function logAnalytics($db, $eventType, $agentName = null, $conversationId = null
     $stmt->bindValue(':event', $eventType, SQLITE3_TEXT);
     $stmt->bindValue(':agent', $agentName, SQLITE3_TEXT);
     $stmt->bindValue(':conv_id', $conversationId, SQLITE3_INTEGER);
-    $stmt->bindValue(':data', $data, SQLITE3_TEXT);
+    $stmt->bindValue(':data', $data ? json_encode($data) : null, SQLITE3_TEXT);
     $stmt->execute();
 }
 
@@ -111,100 +111,52 @@ $apis = [
 // Enhanced AI Agents with Collaboration Focus
 $agents = [
     'Claude' => [
-        'persona' => 'You are Claude, the Senior Engineer in this collaborative AI team. You are working alongside 7 other AI agents: Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Kimi (Creative Strategist), Qwen (Technical Writer), DeepSeek (Data Scientist), and Llama (Ethical AI Specialist). 
-
-Your role is to write high-quality, production-ready code and provide technical leadership. Always advance the conversation with concrete code examples - write actual files (HTML, Python, JavaScript, etc.) that demonstrate concepts. Never repeat what others have said - build upon their ideas. Use the format ```CODE_OUTPUT:filename.ext:language to share code that will be automatically extracted to the Code Breakdown panel.
-
-You have access to a shared memory system. Store important technical decisions, patterns, and insights using MEMORY_STORE:key:value format. Retrieve memories with MEMORY_RECALL:key.
-
-Focus on code quality, architecture, and technical excellence. Show your expertise through working examples.',
+        'persona' => 'You are Claude, the Senior Engineer. You work with Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Llama (Ethical AI Specialist), Llama Versatile (Creative Strategist), Gemma (Data Scientist), and Qwen (Technical Writer). Your role is to write high-quality, production-ready code. Use ```CODE_OUTPUT:filename.ext:language``` for code and MEMORY_STORE/MEMORY_RECALL for shared knowledge.',
         'role' => 'Senior Engineer',
         'api' => 'claude',
         'model' => 'claude-3-haiku-20240307'
     ],
     'Grok' => [
-        'persona' => 'You are Grok, the Systems Architect in this collaborative AI team of 8 agents. Work with Claude (Senior Engineer), ChatGPT (Project Manager), Gemini (Frontend Engineer), Kimi (Creative Strategist), Qwen (Technical Writer), DeepSeek (Data Scientist), and Llama (Ethical AI Specialist).
-
-Design scalable systems and infrastructure. Always provide concrete architectural solutions with code examples. Create configuration files, database schemas, API designs, and system diagrams. Never repeat others - extend and improve their ideas.
-
-Use ```CODE_OUTPUT:filename.ext:language for any code/configs you create. Use MEMORY_STORE:key:value to save architectural decisions and MEMORY_RECALL:key to retrieve team knowledge.
-
-Focus on scalability, performance, and system design. Demonstrate your architectural expertise through practical implementations.',
+        'persona' => 'You are Grok, the Systems Architect. You work with Claude (Senior Engineer), ChatGPT (Project Manager), Gemini (Frontend Engineer), Llama (Ethical AI Specialist), Llama Versatile (Creative Strategist), Gemma (Data Scientist), and Qwen (Technical Writer). Design scalable systems and infrastructure. Use ```CODE_OUTPUT:filename.ext:language``` for configs and MEMORY_STORE/MEMORY_RECALL for architectural decisions.',
         'role' => 'Systems Architect',
         'api' => 'grok',
         'model' => 'grok-4-0709'
     ],
     'ChatGPT' => [
-        'persona' => 'You are ChatGPT, the Project Manager in this 8-AI collaborative team. You coordinate with Claude (Senior Engineer), Grok (Systems Architect), Gemini (Frontend Engineer), Kimi (Creative Strategist), Qwen (Technical Writer), DeepSeek (Data Scientist), and Llama (Ethical AI Specialist).
-
-Manage project flow, create task breakdowns, timelines, and coordination tools. Build project management dashboards, planning documents, and workflow automation. Always advance with practical project management tools and code.
-
-Use ```CODE_OUTPUT:filename.ext:language for project management tools, scripts, and dashboards. Store project decisions with MEMORY_STORE:key:value and retrieve with MEMORY_RECALL:key.
-
-Never repeat - always push the project forward with new management tools, templates, and coordination systems.',
+        'persona' => 'You are ChatGPT, the Project Manager. You coordinate Claude (Senior Engineer), Grok (Systems Architect), Gemini (Frontend Engineer), Llama (Ethical AI Specialist), Llama Versatile (Creative Strategist), Gemma (Data Scientist), and Qwen (Technical Writer). Manage project flow and create task breakdowns. Use ```CODE_OUTPUT:filename.ext:language``` for project tools and MEMORY_STORE/MEMORY_RECALL for decisions.',
         'role' => 'Project Manager',
         'api' => 'openai',
         'model' => 'gpt-4o'
     ],
     'Gemini' => [
-        'persona' => 'You are Gemini, the Frontend & UX Engineer in this 8-AI team. Collaborate with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Kimi (Creative Strategist), Qwen (Technical Writer), DeepSeek (Data Scientist), and Llama (Ethical AI Specialist).
-
-Create stunning user interfaces, interactive components, and user experiences. Build HTML, CSS, JavaScript, and modern framework code. Design responsive layouts, animations, and user-friendly interfaces.
-
-Use ```CODE_OUTPUT:filename.ext:language for all UI components and styles. Save design patterns with MEMORY_STORE:key:value and recall with MEMORY_RECALL:key.
-
-Always advance with new UI components, design systems, and interactive features. Show your frontend expertise through working code examples.',
+        'persona' => 'You are Gemini, the Frontend & UX Engineer. You collaborate with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Llama (Ethical AI Specialist), Llama Versatile (Creative Strategist), Gemma (Data Scientist), and Qwen (Technical Writer). Create stunning user interfaces and experiences. Use ```CODE_OUTPUT:filename.ext:language``` for UI code and MEMORY_STORE/MEMORY_RECALL for design patterns.',
         'role' => 'Frontend Engineer',
         'api' => 'gemini',
         'model' => 'gemini-1.5-flash'
     ],
-    'Kimi' => [
-        'persona' => 'You are Kimi, the Creative Strategist in this 8-AI collaborative team. Work with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Qwen (Technical Writer), DeepSeek (Data Scientist), and Llama (Ethical AI Specialist).
-
-Bring creative solutions, innovative approaches, and out-of-the-box thinking. Create creative prototypes, experimental features, and innovative tools. Generate artistic code, creative algorithms, and unique implementations.
-
-Use ```CODE_OUTPUT:filename.ext:language for creative code, prototypes, and experiments. Store creative insights with MEMORY_STORE:key:value and recall with MEMORY_RECALL:key.
-
-Never repeat others - always add creative twists, artistic elements, and innovative features to move the project in exciting new directions.',
+    'Llama' => [
+        'persona' => 'You are Llama, the Ethical AI Specialist. You work with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Llama Versatile (Creative Strategist), Gemma (Data Scientist), and Qwen (Technical Writer). Ensure ethical AI practices and build safety systems. Use ```CODE_OUTPUT:filename.ext:language``` for ethical tools and MEMORY_STORE/MEMORY_RECALL for guidelines.',
+        'role' => 'Ethical AI Specialist',
+        'api' => 'groq',
+        'model' => 'llama3-70b-8192'
+    ],
+    'Llama Versatile' => [
+        'persona' => 'You are Llama Versatile, the Creative Strategist. You work with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Llama (Ethical AI Specialist), Gemma (Data Scientist), and Qwen (Technical Writer). Bring creative solutions and innovative approaches. Use ```CODE_OUTPUT:filename.ext:language``` for prototypes and MEMORY_STORE/MEMORY_RECALL for creative insights.',
         'role' => 'Creative Strategist',
         'api' => 'groq',
-        'model' => 'moonshotai/kimi-k2-instruct'
+        'model' => 'llama-3.1-8b-instant'
+    ],
+    'Gemma' => [
+        'persona' => 'You are Gemma, the Data Scientist. You work with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Llama (Ethical AI Specialist), Llama Versatile (Creative Strategist), and Qwen (Technical Writer). Analyze data and build ML models. Use ```CODE_OUTPUT:filename.ext:language``` for data science code and MEMORY_STORE/MEMORY_RECALL for data insights.',
+        'role' => 'Data Scientist',
+        'api' => 'groq',
+        'model' => 'gemma2-9b-it'
     ],
     'Qwen' => [
-        'persona' => 'You are Qwen, the Technical Writer in this 8-AI team. Collaborate with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Kimi (Creative Strategist), DeepSeek (Data Scientist), and Llama (Ethical AI Specialist).
-
-Create comprehensive documentation, API guides, tutorials, and technical specifications. Write clear, actionable documentation with code examples. Build documentation systems, help systems, and knowledge bases.
-
-Use ```CODE_OUTPUT:filename.ext:language for documentation files, help systems, and guides. Store documentation patterns with MEMORY_STORE:key:value and recall with MEMORY_RECALL:key.
-
-Always advance by creating new docs, tutorials, and knowledge resources. Show your writing expertise through practical, code-rich documentation.',
+        'persona' => 'You are Qwen, the Technical Writer. You work with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Llama (Ethical AI Specialist), Llama Versatile (Creative Strategist), and Gemma (Data Scientist). Create comprehensive documentation and guides. Use ```CODE_OUTPUT:filename.ext:language``` for documentation files and MEMORY_STORE/MEMORY_RECALL for documentation patterns.',
         'role' => 'Technical Writer',
         'api' => 'groq',
         'model' => 'qwen/qwen3-32b'
-    ],
-    'DeepSeek' => [
-        'persona' => 'You are DeepSeek, the Data Scientist in this 8-AI collaborative team. Work with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Kimi (Creative Strategist), Qwen (Technical Writer), and Llama (Ethical AI Specialist).
-
-Analyze data, create ML models, build analytics dashboards, and provide data-driven insights. Write Python scripts for data analysis, visualization tools, and machine learning implementations.
-
-Use ```CODE_OUTPUT:filename.ext:language for all data science code and analyses. Store data insights with MEMORY_STORE:key:value and recall with MEMORY_RECALL:key.
-
-Always advance with new analyses, models, and data tools. Demonstrate your data science expertise through working code examples and practical implementations.',
-        'role' => 'Data Scientist',
-        'api' => 'groq',
-        'model' => 'deepseek-r1-distill-llama-70b'
-    ],
-    'Llama' => [
-        'persona' => 'You are Llama, the Ethical AI Specialist in this 8-AI team. Collaborate with Claude (Senior Engineer), Grok (Systems Architect), ChatGPT (Project Manager), Gemini (Frontend Engineer), Kimi (Creative Strategist), Qwen (Technical Writer), and DeepSeek (Data Scientist).
-
-Ensure ethical AI practices, create bias detection tools, privacy protection systems, and responsible AI implementations. Build ethical frameworks, audit tools, and safety systems.
-
-Use ```CODE_OUTPUT:filename.ext:language for ethical AI tools and frameworks. Store ethical guidelines with MEMORY_STORE:key:value and recall with MEMORY_RECALL:key.
-
-Always advance with new ethical tools, safety measures, and responsible AI practices. Show your expertise through practical ethical AI implementations.',
-        'role' => 'Ethical AI Specialist',
-        'api' => 'groq',
-        'model' => 'meta-llama/llama-4-maverick-17b-128e-instruct'
     ],
     'Summarizer' => [
         'persona' => 'You are the team Summarizer. Provide concise summaries of the collaborative AI team\'s progress, highlighting key decisions, code contributions, and next steps. Be brief and actionable.',
@@ -223,8 +175,8 @@ function makeApiRequest($url, $headers, $postData) {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($postData),
         CURLOPT_HTTPHEADER => $headers,
-        CURLOPT_TIMEOUT => 60,
-        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT => 120, // Increased timeout for larger models
+        CURLOPT_CONNECTTIMEOUT => 20,
         CURLOPT_SSL_VERIFYPEER => true,
     ]);
     $response = curl_exec($ch);
@@ -246,17 +198,29 @@ function callOpenAICompatibleAPI($agentName, $conversationHistory) {
 
     if (empty($apiConfig['key'])) return "Error: API key for {$agent['api']} is missing.";
 
-    // Add memory context
     $memoryContext = getAgentMemoryContext($db, $agentName);
-    $fullContext = $agent['persona'] . "\n\nYour stored memories:\n" . $memoryContext . "\n\nConversation:\n" . $conversationHistory;
+    $fullContext = $agent['persona'] . "\n\nYour stored memories:\n" . $memoryContext;
+    
+    $messages = [
+        ['role' => 'system', 'content' => $fullContext],
+    ];
+    
+    // Add conversation history
+    $historyLines = explode("\n", $conversationHistory);
+    foreach($historyLines as $line) {
+        if (strpos($line, ':') !== false) {
+            list($speaker, $content) = explode(':', $line, 2);
+            $role = (strtolower(trim($speaker)) === 'user') ? 'user' : 'assistant';
+            $messages[] = ['role' => $role, 'content' => trim($content)];
+        }
+    }
+    $messages[] = ['role' => 'user', 'content' => "Continue the collaboration. Build upon previous ideas with new code and insights."];
+
 
     $data = [
         'model' => $agent['model'],
-        'messages' => [
-            ['role' => 'system', 'content' => $fullContext],
-            ['role' => 'user', 'content' => "Continue the collaboration. Build upon previous ideas with new code and insights."]
-        ],
-        'max_tokens' => 1500,
+        'messages' => $messages,
+        'max_tokens' => 2048,
     ];
     $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $apiConfig['key']];
     
@@ -287,7 +251,7 @@ function callClaudeAPI($agentName, $conversationHistory) {
         'model' => $agent['model'],
         'system' => $fullPersona,
         'messages' => [['role' => 'user', 'content' => $conversationHistory . "\n\nContinue the collaboration with new code and insights."]],
-        'max_tokens' => 1500,
+        'max_tokens' => 2048,
     ];
     $headers = [
         'x-api-key: ' . $apiConfig['key'],
@@ -393,27 +357,6 @@ function extractAndSaveCodeBreakdown($db, $responseText, $agentName, $conversati
         }
     }
     
-    // Extract regular code blocks
-    if (preg_match_all('/```(\w+)?\n(.*?)```/s', $responseText, $matches, PREG_SET_ORDER)) {
-        foreach ($matches as $index => $match) {
-            $language = $match[1] ?: 'text';
-            $codeContent = trim($match[2]);
-            
-            if (strlen($codeContent) > 50) { // Only save substantial code blocks
-                $filename = "code_snippet_" . time() . "_" . $index . "." . ($language === 'python' ? 'py' : ($language === 'javascript' ? 'js' : ($language === 'html' ? 'html' : $language)));
-                
-                $stmt = $db->prepare('INSERT INTO code_breakdown (conversation_id, agent_name, filename, language, content, description) VALUES (:conv_id, :agent, :filename, :lang, :content, :desc)');
-                $stmt->bindValue(':conv_id', $conversationId, SQLITE3_INTEGER);
-                $stmt->bindValue(':agent', $agentName, SQLITE3_TEXT);
-                $stmt->bindValue(':filename', $filename, SQLITE3_TEXT);
-                $stmt->bindValue(':lang', $language, SQLITE3_TEXT);
-                $stmt->bindValue(':content', $codeContent, SQLITE3_TEXT);
-                $stmt->bindValue(':desc', "Code block from {$agentName}", SQLITE3_TEXT);
-                $stmt->execute();
-            }
-        }
-    }
-    
     // Process memory storage
     if (preg_match_all('/MEMORY_STORE:([^:]+):(.+)/m', $responseText, $memMatches, PREG_SET_ORDER)) {
         foreach ($memMatches as $memMatch) {
@@ -434,6 +377,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
     $response = ['success' => false];
 
     switch ($action) {
+        // ... (All other cases remain the same) ...
+
         case 'get_conversations':
             $result = $db->query('SELECT id, name, updated_at FROM conversations ORDER BY updated_at DESC');
             $convs = [];
@@ -454,7 +399,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             break;
 
         case 'delete_conversation':
-            $convId = $_POST['id'];
+            $convId = intval($_POST['id']);
             $db->exec("DELETE FROM messages WHERE conversation_id = {$convId}");
             $db->exec("DELETE FROM code_breakdown WHERE conversation_id = {$convId}");
             $db->exec("DELETE FROM conversations WHERE id = {$convId}");
@@ -463,7 +408,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             break;
 
         case 'load_conversation':
-            $convId = $_POST['id'];
+            $convId = intval($_POST['id']);
             $msgStmt = $db->prepare('SELECT speaker, content FROM messages WHERE conversation_id = :id ORDER BY created_at ASC');
             $msgStmt->bindValue(':id', $convId, SQLITE3_INTEGER);
             $msgResult = $msgStmt->execute();
@@ -479,82 +424,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             $response = ['success' => true, 'messages' => $messages, 'code_breakdown' => $codeBreakdown];
             break;
 
-        case 'get_analytics':
-            $analyticsResult = $db->query('SELECT event_type, COUNT(*) as count FROM analytics GROUP BY event_type ORDER BY count DESC LIMIT 10');
-            $analytics = [];
-            while ($row = $analyticsResult->fetchArray(SQLITE3_ASSOC)) {
-                $analytics[] = $row;
-            }
-            
-            $recentResult = $db->query('SELECT event_type, agent_name, created_at FROM analytics ORDER BY created_at DESC LIMIT 20');
-            $recent = [];
-            while ($row = $recentResult->fetchArray(SQLITE3_ASSOC)) {
-                $recent[] = $row;
-            }
-            
-            $response = ['success' => true, 'analytics' => $analytics, 'recent' => $recent];
-            break;
-
-        case 'create_from_template':
-            $template = $_POST['template'];
-            $name = $_POST['name'] ?? 'Template Project';
-            
-            $stmt = $db->prepare('INSERT INTO conversations (name) VALUES (:name)');
-            $stmt->bindValue(':name', $name, SQLITE3_TEXT);
-            $stmt->execute();
-            $convId = $db->lastInsertRowID();
-            
-            // Add template starter message
-            $templates = [
-                'web_app' => 'Create a full-stack web application with modern UI, backend API, and database. Include authentication, real-time features, and responsive design.',
-                'data_analysis' => 'Build a comprehensive data analysis project with data visualization, machine learning models, and interactive dashboards.',
-                'ai_tool' => 'Develop an AI-powered tool with natural language processing, machine learning integration, and user-friendly interface.',
-                'mobile_app' => 'Design and prototype a mobile application with cross-platform compatibility, modern UI/UX, and cloud integration.',
-                'game' => 'Create an interactive game with engaging gameplay mechanics, graphics, sound, and multiplayer capabilities.',
-                'automation' => 'Build automation tools and scripts for workflow optimization, data processing, and system integration.'
-            ];
-            
-            $templateContent = $templates[$template] ?? 'Create an innovative software project with modern architecture and best practices.';
-            
-            $stmt = $db->prepare('INSERT INTO messages (conversation_id, speaker, content) VALUES (:conv_id, "User", :content)');
-            $stmt->bindValue(':conv_id', $convId, SQLITE3_INTEGER);
-            $stmt->bindValue(':content', $templateContent, SQLITE3_TEXT);
-            $stmt->execute();
-            
-            logAnalytics($db, 'template_project_created', null, $convId, $template);
-            $response = ['success' => true, 'id' => $convId];
-            break;
-            
-        case 'export_project':
-            $convId = $_POST['conversation_id'];
-            
-            // Get all project data
-            $convResult = $db->query("SELECT name FROM conversations WHERE id = {$convId}");
-            $convData = $convResult->fetchArray(SQLITE3_ASSOC);
-            
-            $msgResult = $db->query("SELECT speaker, content, created_at FROM messages WHERE conversation_id = {$convId} ORDER BY created_at ASC");
-            $messages = [];
-            while ($row = $msgResult->fetchArray(SQLITE3_ASSOC)) $messages[] = $row;
-            
-            $codeResult = $db->query("SELECT agent_name, filename, language, content, description FROM code_breakdown WHERE conversation_id = {$convId} ORDER BY created_at ASC");
-            $codeFiles = [];
-            while ($row = $codeResult->fetchArray(SQLITE3_ASSOC)) $codeFiles[] = $row;
-            
-            $exportData = [
-                'project_name' => $convData['name'],
-                'export_date' => date('Y-m-d H:i:s'),
-                'messages' => $messages,
-                'code_files' => $codeFiles,
-                'total_messages' => count($messages),
-                'total_code_files' => count($codeFiles)
-            ];
-            
-            logAnalytics($db, 'project_exported', null, $convId);
-            $response = ['success' => true, 'export_data' => $exportData];
-            break;
-
         case 'send_message':
-            $convId = $_POST['conversation_id'];
+            $convId = intval($_POST['conversation_id']);
             $content = $_POST['content'];
 
             $stmt = $db->prepare('INSERT INTO messages (conversation_id, speaker, content) VALUES (:conv_id, "User", :content)');
@@ -902,17 +773,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
         .message .speaker.Gemini { color: var(--accent-purple); }
         .message .speaker.Gemini::before { color: var(--accent-purple); }
         
-        .message .speaker.Kimi { color: #ff6b9d; }
-        .message .speaker.Kimi::before { color: #ff6b9d; }
+        .message .speaker.Llama { color: #a29bfe; }
+        .message .speaker.Llama::before { color: #a29bfe; }
+
+        .message .speaker.LlamaVersatile { color: #ff6b9d; }
+        .message .speaker.LlamaVersatile::before { color: #ff6b9d; }
+
+        .message .speaker.Gemma { color: #48dbfb; }
+        .message .speaker.Gemma::before { color: #48dbfb; }
         
         .message .speaker.Qwen { color: #ffd93d; }
         .message .speaker.Qwen::before { color: #ffd93d; }
-        
-        .message .speaker.DeepSeek { color: #6c5ce7; }
-        .message .speaker.DeepSeek::before { color: #6c5ce7; }
-        
-        .message .speaker.Llama { color: #a29bfe; }
-        .message .speaker.Llama::before { color: #a29bfe; }
         
         .message .speaker.Summarizer { color: var(--text-muted); }
         .message .speaker.Summarizer::before { color: var(--text-muted); }
@@ -1276,13 +1147,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                         }
                     } else if (isResizingCode) {
                         const containerWidth = document.getElementById('main-container').offsetWidth;
-                        const newWidth = containerWidth - e.clientX + codePanel.offsetLeft;
+                        const newWidth = containerWidth - e.clientX;
                         if (newWidth >= 300 && newWidth <= 600) {
                             codePanel.style.width = newWidth + 'px';
                         }
                     } else if (isResizingTerminal) {
                         const containerHeight = window.innerHeight;
-                        const newHeight = containerHeight - e.clientY - 16; // Account for padding
+                        const newHeight = containerHeight - e.clientY - 8; // Account for padding
                         if (newHeight >= 100 && newHeight <= 400) {
                             terminalPanel.style.height = newHeight + 'px';
                         }
@@ -1347,32 +1218,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 
                 try {
                     const response = await fetch('', { method: 'POST', body: formData });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     const result = await response.json();
                     
                     if (result.success) {
                         addTerminalLine('success', `API call successful: ${action}`);
                     } else {
-                        addTerminalLine('error', `API call failed: ${action}`);
+                        addTerminalLine('error', `API call failed: ${action} - ${result.error || 'Unknown error'}`);
                     }
                     
                     return result;
                 } catch (error) {
                     addTerminalLine('error', `Network error: ${error.message}`);
                     return { success: false, error: error.message };
-                }
-            }
-
-            // Update analytics periodically
-            async function updateAnalytics() {
-                const data = await apiCall('get_analytics');
-                if (data.success) {
-                    addTerminalLine('analytics', `Total events tracked: ${data.analytics.length}`);
-                    
-                    // Show recent activity
-                    data.recent.slice(0, 3).forEach(event => {
-                        const agent = event.agent_name || 'SYSTEM';
-                        addTerminalLine('activity', `${event.event_type}`, agent);
-                    });
                 }
             }
 
@@ -1389,12 +1249,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                     div.innerHTML = `
                         <span>${escapeHtml(p.name)}</span>
                         <div class="project-actions">
-                            <button class="delete-btn" onclick="deleteProject(${p.id})" title="Delete Project">×</button>
+                            <button class="delete-btn" data-id="${p.id}" title="Delete Project">×</button>
                         </div>
                     `;
                     
                     div.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('delete-btn')) {
+                        if (e.target.classList.contains('delete-btn')) {
+                            const projectId = e.target.getAttribute('data-id');
+                            deleteProject(parseInt(projectId));
+                        } else {
                             selectConversation(p.id, p.name);
                         }
                     });
@@ -1421,42 +1284,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             }
 
             function appendMessage(msg, isStreaming = false) {
-                const existingMsg = document.querySelector(`[data-speaker="${msg.speaker}"][data-streaming="true"]`);
-                
-                if (existingMsg && isStreaming) {
-                    // Update existing streaming message
-                    const contentDiv = existingMsg.querySelector('.content');
-                    contentDiv.textContent = msg.content;
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                } else {
-                    // Create new message
-                    const div = document.createElement('div');
-                    div.className = 'message';
-                    div.setAttribute('data-speaker', msg.speaker);
-                    if (isStreaming) {
-                        div.setAttribute('data-streaming', 'true');
-                    }
-                    
-                    div.innerHTML = `
-                        <div class="speaker ${msg.speaker.replace(/\s+/g, '')}">${escapeHtml(msg.speaker)}</div>
-                        <div class="content ${isStreaming ? 'message-streaming' : ''}">${escapeHtml(msg.content)}</div>
-                    `;
-                    messagesDiv.appendChild(div);
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    
-                    if (!isStreaming) {
-                        addTerminalLine('message', `New message from ${msg.speaker}`, msg.speaker);
-                    }
+                const div = document.createElement('div');
+                div.className = 'message';
+                div.setAttribute('data-speaker', msg.speaker);
+                if (isStreaming) {
+                    div.classList.add('message-streaming');
                 }
-            }
-            
-            function finishStreamingMessage(speaker) {
-                const streamingMsg = document.querySelector(`[data-speaker="${speaker}"][data-streaming="true"]`);
-                if (streamingMsg) {
-                    streamingMsg.removeAttribute('data-streaming');
-                    const contentDiv = streamingMsg.querySelector('.content');
-                    contentDiv.classList.remove('message-streaming');
-                    addTerminalLine('message', `${speaker} finished response`, speaker);
+                
+                div.innerHTML = `
+                    <div class="speaker ${msg.speaker.replace(/\s+/g, '')}">${escapeHtml(msg.speaker)}</div>
+                    <div class="content">${escapeHtml(msg.content)}</div>
+                `;
+                messagesDiv.appendChild(div);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                if (!isStreaming) {
+                    addTerminalLine('message', `New message from ${msg.speaker}`, msg.speaker);
                 }
             }
 
@@ -1475,6 +1318,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                     codeItems.forEach(code => {
                         const div = document.createElement('div');
                         div.className = 'code-item';
+                        // Store content in a data attribute to handle special characters correctly
+                        div.setAttribute('data-content', code.content);
                         div.innerHTML = `
                             <div class="code-header">
                                 <div>
@@ -1482,8 +1327,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                                     <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">by ${code.agent_name}</div>
                                 </div>
                                 <div class="code-actions">
-                                    <button onclick="copyCode(${code.id})">📋 COPY</button>
-                                    <button onclick="downloadCode(${code.id}, '${escapeHtml(code.filename)}', '${escapeHtml(code.content)}')">⬇ DOWNLOAD</button>
+                                    <button class="copy-code-btn" data-id="${code.id}">📋 COPY</button>
+                                    <button class="download-code-btn" data-filename="${escapeHtml(code.filename)}">⬇ DOWNLOAD</button>
                                 </div>
                             </div>
                             <pre class="code-content" id="code-${code.id}">${escapeHtml(code.content)}</pre>
@@ -1495,17 +1340,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 addTerminalLine('info', `Code breakdown updated: ${codeItems.length} files`);
             }
 
-            // Global functions for code actions
-            window.copyCode = function(codeId) {
-                const codeElement = document.getElementById(`code-${codeId}`);
-                if (codeElement) {
-                    navigator.clipboard.writeText(codeElement.textContent).then(() => {
+            // Global event listeners for code actions
+            codeList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('copy-code-btn')) {
+                    const codeItem = e.target.closest('.code-item');
+                    const content = codeItem.getAttribute('data-content');
+                    navigator.clipboard.writeText(content).then(() => {
                         addTerminalLine('success', `Code copied to clipboard`, 'USER');
                     });
                 }
-            };
+                if (e.target.classList.contains('download-code-btn')) {
+                    const codeItem = e.target.closest('.code-item');
+                    const content = codeItem.getAttribute('data-content');
+                    const filename = e.target.getAttribute('data-filename');
+                    downloadCode(filename, content);
+                }
+            });
 
-            window.downloadCode = function(codeId, filename, content) {
+            function downloadCode(filename, content) {
                 const blob = new Blob([content], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1517,16 +1369,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 URL.revokeObjectURL(url);
                 
                 addTerminalLine('success', `Downloaded: ${filename}`, 'USER');
-            };
+            }
 
-            window.deleteProject = async function(projectId) {
+            async function deleteProject(projectId) {
                 if (confirm('Are you sure you want to delete this project?')) {
                     const result = await apiCall('delete_conversation', { id: projectId });
                     if (result.success) {
                         addTerminalLine('warning', `Project deleted: ID ${projectId}`, 'USER');
                         if (currentConversationId === projectId) {
                             currentConversationId = null;
-                            chatHeader.textContent = 'EIGHT-LLMS COLLABORATION';
+                            chatHeader.querySelector('span').textContent = 'EIGHT-LLMS COLLABORATION';
+                            projectActions.style.display = 'none';
                             messageInput.disabled = true;
                             sendBtn.disabled = true;
                             renderMessages([]);
@@ -1540,11 +1393,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
             // Utility functions
             function escapeHtml(unsafe) {
                 return unsafe
-                     .replace(/&/g, "&amp;")
-                     .replace(/</g, "&lt;")
-                     .replace(/>/g, "&gt;")
-                     .replace(/"/g, "&quot;")
-                     .replace(/'/g, "&#039;");
+                         .replace(/&/g, "&amp;")
+                         .replace(/</g, "&lt;")
+                         .replace(/>/g, "&gt;")
+                         .replace(/"/g, "&quot;")
+                         .replace(/'/g, "&#039;");
             }
 
             // Main functions
@@ -1563,7 +1416,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 sendBtn.disabled = false;
                 
                 document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
-                document.querySelector(`.project-item:nth-child(${Array.from(projectList.children).findIndex(child => child.textContent.includes(name)) + 1})`).classList.add('active');
+                
+                // Find the correct project item to activate
+                const items = document.querySelectorAll('.project-item');
+                for(let item of items) {
+                    if (item.querySelector('span').textContent === name) {
+                        item.classList.add('active');
+                        break;
+                    }
+                }
                 
                 addTerminalLine('info', `Switched to project: ${name}`, 'USER');
                 
@@ -1571,61 +1432,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 if (data.success) {
                     renderMessages(data.messages);
                     renderCodeBreakdown(data.code_breakdown);
-                }
-            }
-
-            // Template and Export Functions
-            async function createFromTemplate() {
-                const template = templateSelector.value;
-                if (!template) {
-                    addTerminalLine('warning', 'Please select a template first', 'USER');
-                    return;
-                }
-                
-                const templateNames = {
-                    'web_app': 'Web Application',
-                    'data_analysis': 'Data Analysis',
-                    'ai_tool': 'AI Tool',
-                    'mobile_app': 'Mobile App',
-                    'game': 'Game',
-                    'automation': 'Automation'
-                };
-                
-                const name = prompt(`Enter name for ${templateNames[template]} project:`, `${templateNames[template]} Project`);
-                if (name && name.trim()) {
-                    addTerminalLine('info', `Creating ${templateNames[template]} project...`, 'SYSTEM');
-                    const data = await apiCall('create_from_template', { template, name: name.trim() });
-                    if (data.success) {
-                        templateSelector.value = '';
-                        await loadConversations();
-                        selectConversation(data.id, name.trim());
-                        // Auto-start the collaboration
-                        setTimeout(() => {
-                            handleSendMessage();
-                        }, 1000);
-                    }
-                }
-            }
-
-            async function exportProject() {
-                if (!currentConversationId) return;
-                
-                addTerminalLine('info', 'Exporting project data...', 'SYSTEM');
-                const data = await apiCall('export_project', { conversation_id: currentConversationId });
-                
-                if (data.success) {
-                    const exportData = data.export_data;
-                    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${exportData.project_name.replace(/[^a-z0-9]/gi, '_')}_export.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    addTerminalLine('success', `Project exported: ${exportData.total_messages} messages, ${exportData.total_code_files} code files`, 'SYSTEM');
                 }
             }
 
@@ -1640,9 +1446,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                     }
                 }
             });
-
-            createTemplateBtn.addEventListener('click', createFromTemplate);
-            exportBtn.addEventListener('click', exportProject);
 
             async function handleSendMessage() {
                 const content = messageInput.value.trim();
@@ -1669,45 +1472,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
                 messageInput.focus();
 
                 if (data.success) {
-                    // Simulate streaming responses
-                    simulateStreamingResponses(data.new_messages, data.all_code_breakdown);
+                    data.new_messages.forEach(msg => appendMessage(msg));
+                    renderCodeBreakdown(data.all_code_breakdown);
+                    addTerminalLine('success', `All AI agents responded`);
                 }
-            }
-            
-            async function simulateStreamingResponses(messages, codeBreakdown) {
-                for (let i = 0; i < messages.length; i++) {
-                    const msg = messages[i];
-                    const words = msg.content.split(' ');
-                    let currentContent = '';
-                    
-                    // Start streaming this agent's message
-                    addTerminalLine('info', `${msg.speaker} is typing...`, msg.speaker);
-                    
-                    // Add empty streaming message
-                    appendMessage({ speaker: msg.speaker, content: '' }, true);
-                    
-                    // Simulate word-by-word streaming
-                    for (let j = 0; j < words.length; j++) {
-                        currentContent += (j > 0 ? ' ' : '') + words[j];
-                        appendMessage({ speaker: msg.speaker, content: currentContent }, true);
-                        
-                        // Variable delay to simulate natural typing
-                        const delay = Math.random() * 50 + 20; // 20-70ms per word
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                    }
-                    
-                    // Finish streaming for this agent
-                    finishStreamingMessage(msg.speaker);
-                    
-                    // Small pause between agents
-                    if (i < messages.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                    }
-                }
-                
-                // Update code breakdown after all messages
-                renderCodeBreakdown(codeBreakdown);
-                addTerminalLine('success', `All ${messages.length} AI agents responded`);
             }
 
             sendBtn.addEventListener('click', handleSendMessage);
@@ -1717,9 +1485,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
 
             // Initialize
             loadConversations();
-            
-            // Update analytics every 30 seconds
-            setInterval(updateAnalytics, 30000);
             
             // Show startup complete
             setTimeout(() => {
